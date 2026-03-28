@@ -1,0 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: #0a0a14;
+  color: #f0eff4;
+  font-family: 'Sora', sans-serif;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+@layer components {
+  .app-shell {
+    @apply relative overflow-x-hidden bg-void;
+    background-image:
+      radial-gradient(circle at top left, rgba(123, 97, 255, 0.22), transparent 28%),
+      radial-gradient(circle at 80% 20%, rgba(123, 97, 255, 0.12), transparent 24%),
+      linear-gradient(180deg, #0a0a14 0%, #070710 100%);
+  }
+
+  .noise-layer {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.05;
+    background:
+      linear-gradient(0deg, rgba(240, 239, 244, 0.35), rgba(240, 239, 244, 0.35)),
+      linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.45) 100%);
+    filter: url(#noiseFilter);
+    mix-blend-mode: soft-light;
+  }
+
+  .section-shell {
+    @apply relative z-10 mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-28;
+  }
+
+  .section-heading {
+    @apply mb-12 max-w-4xl;
+  }
+
+  .section-heading h2 {
+    @apply mt-4 text-4xl font-semibold leading-tight text-ghost md:text-6xl;
+  }
+
+  .eyebrow {
+    @apply font-mono text-[0.72rem] uppercase tracking-[0.35em] text-plasma;
+  }
+
+  .magnetic-button {
+    @apply relative inline-flex items-center gap-2 overflow-hidden rounded-full border border-plasma/40 bg-plasma px-5 py-3 text-sm font-semibold text-ghost transition duration-300 ease-magnetic hover:-translate-y-px hover:scale-[1.03];
+  }
+
+  .magnetic-button > span:first-child {
+    @apply absolute inset-0 translate-y-full bg-ghost transition-transform duration-300 ease-magnetic;
+  }
+
+  .magnetic-button:hover > span:first-child {
+    transform: translateY(0);
+  }
+
+  .magnetic-button:hover > span:last-child {
+    @apply text-graphite;
+  }
+
+  .ghost-button {
+    @apply inline-flex items-center justify-center rounded-full border border-white/10 bg-white/5 px-5 py-3 text-sm font-semibold text-ghost transition duration-300 ease-magnetic hover:-translate-y-px hover:border-plasma/40 hover:bg-white/10 hover:scale-[1.03];
+  }
+
+  .accent-button {
+    @apply inline-flex items-center justify-center rounded-full border border-ghost/20 bg-ghost px-5 py-3 text-sm font-semibold text-graphite transition duration-300 ease-magnetic hover:-translate-y-px hover:scale-[1.03];
+  }
+
+  .nav-link {
+    @apply transition duration-300 ease-magnetic hover:-translate-y-px hover:text-plasma;
+  }
+
+  .stat-card {
+    @apply rounded-[1.4rem] border border-white/10 bg-white/5 p-4 text-sm text-mist/75;
+  }
+
+  .stat-card strong {
+    @apply mt-5 block text-3xl font-semibold text-ghost;
+  }
+
+  .stat-card span {
+    @apply mt-1 block text-xs uppercase tracking-[0.25em];
+  }
+
+  .artifact-card {
+    @apply rounded-[2rem] border border-white/10 bg-ghost/5 p-6 shadow-panel backdrop-blur-sm;
+  }
+
+  .artifact-head {
+    @apply flex items-center gap-3 text-sm font-semibold uppercase tracking-[0.24em] text-ghost;
+  }
+
+  .artifact-copy {
+    @apply mt-5 text-sm leading-7 text-mist/75;
+  }
+
+  .manifesto-shell {
+    @apply relative overflow-hidden bg-[#080810];
+  }
+
+  .manifesto-image {
+    @apply absolute inset-0 opacity-20;
+    background-position: center;
+    background-size: cover;
+    transform: scale(1.08);
+  }
+
+  .protocol-stage {
+    @apply relative min-h-[72vh];
+  }
+
+  .protocol-card {
+    @apply sticky top-24 rounded-[2.5rem] border border-white/10 bg-[#0f0f1d] p-8 shadow-aura md:p-12;
+  }
+
+  .protocol-visual {
+    @apply flex min-h-64 items-center justify-center rounded-[2rem] border border-white/10 bg-white/5 p-6;
+  }
+
+  .laser-grid {
+    @apply relative h-64 w-full overflow-hidden rounded-[1.6rem];
+    background-image:
+      linear-gradient(rgba(240, 239, 244, 0.12) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240, 239, 244, 0.12) 1px, transparent 1px);
+    background-size: 26px 26px;
+  }
+
+  .laser-line {
+    @apply absolute left-0 right-0 h-1 rounded-full bg-plasma;
+    top: 18%;
+    box-shadow: 0 0 30px rgba(123, 97, 255, 0.85);
+    animation: sweep 3.6s linear infinite;
+  }
+
+  .wave-line {
+    stroke-dasharray: 520;
+    stroke-dashoffset: 520;
+    animation: pulse-wave 4s linear infinite;
+  }
+
+  .rotor {
+    transform-origin: center;
+    animation: spin-slow 16s linear infinite;
+  }
+
+  .archive-card {
+    @apply overflow-hidden rounded-[2rem] border border-white/10 bg-[#10101d] shadow-panel transition duration-300 ease-magnetic hover:-translate-y-px hover:scale-[1.01];
+  }
+
+  .archive-card-image {
+    @apply h-64 w-full;
+    background-position: center;
+    background-size: cover;
+  }
+
+  .archive-card-body {
+    @apply p-6;
+  }
+
+  .inline-link {
+    @apply inline-flex items-center gap-2 text-sm font-medium text-ghost transition duration-300 ease-magnetic hover:-translate-y-px hover:text-plasma;
+  }
+
+  .filter-pill {
+    @apply rounded-full border border-white/10 bg-white/5 px-4 py-2 text-xs uppercase tracking-[0.3em] text-mist/70 transition duration-300 ease-magnetic hover:-translate-y-px hover:border-plasma/30 hover:text-ghost;
+  }
+
+  .filter-pill-active {
+    @apply border-plasma bg-plasma/15 text-ghost;
+  }
+
+  .scheduler-cursor {
+    @apply absolute left-5 top-5 z-10 h-6 w-6 rounded-full border border-ghost/50 bg-plasma shadow-[0_0_24px_rgba(123,97,255,0.7)];
+  }
+
+  .richtext-html {
+    @apply space-y-4 text-sm leading-7 text-mist/80 md:text-base;
+  }
+
+  .richtext-html h1,
+  .richtext-html h2,
+  .richtext-html h3,
+  .richtext-html h4 {
+    @apply mb-3 mt-6 font-sans text-lg font-semibold text-ghost md:text-xl;
+  }
+
+  .richtext-html p {
+    @apply mb-4;
+  }
+
+  .richtext-html ul {
+    @apply ml-5 list-disc space-y-2;
+  }
+
+  .richtext-html a {
+    @apply text-plasma underline underline-offset-4;
+  }
+}
+
+@keyframes sweep {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(170px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse-wave {
+  0% {
+    stroke-dashoffset: 520;
+  }
+  40% {
+    stroke-dashoffset: 0;
+  }
+  100% {
+    stroke-dashoffset: -520;
+  }
+}
+
+@media (max-width: 768px) {
+  .protocol-card {
+    top: 6rem;
+  }
+}
