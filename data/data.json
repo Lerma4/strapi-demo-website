@@ -1,25 +1,27 @@
 {
   "global": {
-    "siteName": "Strapi Blog",
+    "siteName": "Northstar Process Lab",
     "defaultSeo": {
-      "metaTitle": "Page",
-      "metaDescription": "A blog made with Strapi",
-      "shareImage": null
+      "metaTitle": "Northstar Process Lab",
+      "metaDescription": "Operational intelligence and content systems for industrial teams that need one source of truth.",
+      "shareImage": null,
+      "shareImageFile": "default-image.png"
     },
-    "siteDescription": "A Blog made with Strapi",
-    "favicon": null
+    "siteDescription": "A generic industrial technology company used to demo Strapi workflows, publishing and content operations.",
+    "favicon": null,
+    "faviconFile": "favicon.png"
   },
   "about": {
-    "title": "About the strapi blog",
+    "title": "About Northstar Process Lab",
     "blocks": [
       {
         "__component": "shared.quote",
-        "title": "Thelonius Monk",
-        "body": "You've got to dig it to dig it, you dig?"
+        "title": "Elena Ward, Operations Director",
+        "body": "We do not ship content to fill pages. We ship operational clarity teams can act on."
       },
       {
         "__component": "shared.rich-text",
-        "body": "## Dedit imago conspicuus cum capillis totidem inhibere\n\nLorem markdownum **rerum**, est limine: columbas: ab infelix hostem arbore nudis\ncrudelis. Videtur reliquit ambo ferrum dote sub amne fatis **illuc**, in magis,\nnec."
+        "body": "## Built for industrial teams\n\nNorthstar Process Lab is a fictional company designed to showcase Strapi in a realistic B2B setting. The company helps manufacturing, field service and procurement teams turn fragmented updates into one clear operating narrative.\n\n## Why this demo exists\n\nUse this space to test editorial workflows, reusable blocks, publishing permissions and structured content previews before showing a real implementation to clients."
       },
       {
         "__component": "shared.media",
@@ -29,211 +31,221 @@
   },
   "categories": [
     {
-      "name": "news",
-      "slug": "news"
+      "name": "operations",
+      "slug": "operations",
+      "description": "Content for operational visibility, dashboards and delivery control towers."
     },
     {
-      "name": "tech",
-      "slug": "tech"
+      "name": "field service",
+      "slug": "field-service",
+      "description": "Guides and stories about mobile teams, maintenance programs and technician enablement."
     },
     {
-      "name": "food",
-      "slug": "food"
+      "name": "procurement",
+      "slug": "procurement",
+      "description": "Articles about supplier governance, sourcing clarity and cross-site coordination."
     },
     {
-      "name": "nature",
-      "slug": "nature"
+      "name": "quality",
+      "slug": "quality",
+      "description": "Material focused on quality systems, audits and continuous improvement."
     },
     {
-      "name": "story",
-      "slug": "story"
+      "name": "sustainability",
+      "slug": "sustainability",
+      "description": "Updates on traceability, reporting and operational sustainability initiatives."
     }
   ],
   "authors": [
     {
-      "name": "David Doe",
-      "email": "daviddoe@strapi.io",
+      "name": "Nora Ellis",
+      "email": "nora.ellis@northstar.example",
       "avatar": "daviddoe@strapi.io.jpg"
     },
     {
-      "name": "Sarah Baker",
-      "email": "sarahbaker@strapi.io",
+      "name": "Marco Levin",
+      "email": "marco.levin@northstar.example",
       "avatar": "sarahbaker@strapi.io.jpg"
     }
   ],
   "articles": [
     {
-      "title": "The internet's Own boy",
-      "slug": "the-internet-s-own-boy",
+      "title": "Regional network visibility for multi-site operations",
+      "slug": "regional-network-visibility",
+      "coverFile": "what-s-inside-a-black-hole.jpg",
+      "category": {
+        "id": 1
+      },
+      "author": {
+        "id": 1
+      },
+      "description": "How a generic operations team aligned site leaders, service windows and leadership reporting in one publishing flow.",
+      "cover": null,
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "body": "## The challenge\n\nRegional leaders were working from spreadsheets, email digests and separate slide decks. Updates arrived late and local teams could not see the same priorities.\n\n## What changed\n\nNorthstar rebuilt the operating review as structured content: article summaries for leadership, reusable quote blocks for site voices and media modules for KPI imagery. This made weekly updates easier to publish and easier to reuse across channels."
+        },
+        {
+          "__component": "shared.quote",
+          "title": "Program lead",
+          "body": "Once the content model was stable, every regional review became a publishing exercise instead of a formatting exercise."
+        },
+        {
+          "__component": "shared.media",
+          "file": "what-s-inside-a-black-hole.jpg"
+        },
+        {
+          "__component": "shared.rich-text",
+          "body": "## Result\n\nTeams reduced handoff friction, saw faster approvals and gained a reusable archive for future site launches."
+        },
+        {
+          "__component": "shared.slider",
+          "files": ["what-s-inside-a-black-hole.jpg", "beautiful-picture.jpg"]
+        }
+      ]
+    },
+    {
+      "title": "Field service playbooks that stay current",
+      "slug": "field-service-playbooks",
+      "coverFile": "this-shrimp-is-awesome.jpg",
+      "category": {
+        "id": 2
+      },
+      "author": {
+        "id": 1
+      },
+      "description": "A demo story about turning static technician documents into living content that teams can actually maintain.",
+      "cover": null,
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "body": "## The challenge\n\nTechnicians were using outdated PDFs because no one owned the update cycle. Procedures changed faster than the documentation.\n\n## What changed\n\nNorthstar moved service guidance into reusable content blocks with clear ownership. Rich text handled procedure detail, media blocks supported equipment references and single-source publishing kept updates visible."
+        },
+        {
+          "__component": "shared.quote",
+          "title": "Service excellence manager",
+          "body": "We needed publishing discipline more than another document repository."
+        },
+        {
+          "__component": "shared.media",
+          "file": "this-shrimp-is-awesome.jpg"
+        },
+        {
+          "__component": "shared.rich-text",
+          "body": "## Result\n\nTeams rolled out changes faster and supervisors could audit what was published without hunting through shared drives."
+        },
+        {
+          "__component": "shared.slider",
+          "files": ["this-shrimp-is-awesome.jpg", "coffee-beans.jpg"]
+        }
+      ]
+    },
+    {
+      "title": "Procurement control tower for supplier updates",
+      "slug": "procurement-control-tower",
+      "coverFile": "a-bug-is-becoming-a-meme-on-the-internet.jpg",
+      "category": {
+        "id": 3
+      },
+      "author": {
+        "id": 2
+      },
+      "description": "A generic sourcing team uses structured content to coordinate supplier risk, onboarding and sourcing changes.",
+      "cover": null,
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "body": "## The challenge\n\nSupplier updates were scattered between procurement, legal and operations. No one could see the current approved narrative.\n\n## What changed\n\nNorthstar introduced a publishing cadence with categories for sourcing themes, author ownership for accountability and one central archive for internal stakeholder updates."
+        },
+        {
+          "__component": "shared.quote",
+          "title": "Head of procurement",
+          "body": "The value came from consistent publishing rules, not from more reporting meetings."
+        },
+        {
+          "__component": "shared.media",
+          "file": "a-bug-is-becoming-a-meme-on-the-internet.jpg"
+        },
+        {
+          "__component": "shared.rich-text",
+          "body": "## Result\n\nSupplier communications became easier to reuse across governance reviews, onboarding packs and executive briefings."
+        },
+        {
+          "__component": "shared.slider",
+          "files": ["a-bug-is-becoming-a-meme-on-the-internet.jpg", "coffee-art.jpg"]
+        }
+      ]
+    },
+    {
+      "title": "Quality audit reporting without deck chaos",
+      "slug": "quality-audit-reporting",
+      "coverFile": "beautiful-picture.jpg",
+      "category": {
+        "id": 4
+      },
+      "author": {
+        "id": 2
+      },
+      "description": "How a quality team standardised audits, observations and follow-up narratives in a reusable Strapi model.",
+      "cover": null,
+      "blocks": [
+        {
+          "__component": "shared.rich-text",
+          "body": "## The challenge\n\nEvery audit pack looked different, which made trend analysis and leadership review slower than necessary.\n\n## What changed\n\nNorthstar created a shared publication structure with repeatable blocks for observations, evidence and next actions. That made every audit update easier to review and easier to compare."
+        },
+        {
+          "__component": "shared.quote",
+          "title": "Quality systems lead",
+          "body": "Standard blocks turned our audit archive into something teams could actually navigate."
+        },
+        {
+          "__component": "shared.media",
+          "file": "beautiful-picture.jpg"
+        },
+        {
+          "__component": "shared.rich-text",
+          "body": "## Result\n\nLeadership got cleaner summaries, site teams saw clearer actions and the archive became a useful operating tool."
+        },
+        {
+          "__component": "shared.slider",
+          "files": ["beautiful-picture.jpg", "coffee-shadow.jpg"]
+        }
+      ]
+    },
+    {
+      "title": "Traceability hub for sustainability reporting",
+      "slug": "traceability-hub",
+      "coverFile": "the-internet-s-own-boy.jpg",
       "category": {
         "id": 5
       },
       "author": {
         "id": 1
       },
-      "description": "Follow the story of Aaron Swartz, the boy who could change the world",
+      "description": "A demo initiative showing how sustainability narratives can move from fragmented notes to reusable, client-ready content.",
       "cover": null,
       "blocks": [
         {
           "__component": "shared.rich-text",
-          "body": "## Probant \n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. \n\n## Abit sua\n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. "
+          "body": "## The challenge\n\nSustainability reporting depended on fragmented notes from supply chain, facilities and compliance teams.\n\n## What changed\n\nNorthstar used one structured content layer for milestones, evidence and recurring updates. Authors could maintain specific topics while the wider narrative stayed consistent."
         },
         {
           "__component": "shared.quote",
-          "title": "Thelonius Monk",
-          "body": "You've got to dig it to dig it, you dig?"
+          "title": "Sustainability manager",
+          "body": "The content system became the operating system for our reporting cycle."
         },
         {
           "__component": "shared.media",
-          "file": "coffee-art.jpg"
+          "file": "the-internet-s-own-boy.jpg"
         },
         {
           "__component": "shared.rich-text",
-          "body": "## Spatiantia astra \n\nFoeda, medio silva *errandum*: onus formam munere. Mutata bibulis est auxiliare arces etiamnunc verbis virgineo Priamidas illa Thescelus, nam fit locis lucis auras. Exitus hospes gratulor ut pondere [speslimite](http://www.curas.io/figuram); quid habent, Avernales faciente de. Pervenit Ino sonabile supplex cognoscenti vires, Bacchumque errat miserarum venandi dignabere dedisti. Discrimina iuncosaque virgaque tot sine superest [fissus](http://quos.org/sitet.aspx). Non color esset potest non sumit, sed vix arserat. Nisi immo silva tantum pectusque quos pennis quisquam artus!"
+          "body": "## Result\n\nInternal teams produced cleaner updates, external stakeholders saw a coherent story and future reports were faster to assemble."
         },
         {
           "__component": "shared.slider",
-          "files": ["coffee-art.jpg", "coffee-beans.jpg"]
-        }
-      ]
-    },
-    {
-      "title": "This shrimp is awesome",
-      "slug": "this-shrimp-is-awesome",
-      "category": {
-        "id": 4
-      },
-      "author": {
-        "id": 1
-      },
-      "description": "Mantis shrimps, or stomatopods, are marine crustaceans of the order Stomatopoda.",
-      "cover": null,
-      "blocks": [
-        {
-          "__component": "shared.rich-text",
-          "body": "## Probant \n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. \n\n## Abit sua\n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. "
-        },
-        {
-          "__component": "shared.quote",
-          "title": "Thelonius Monk",
-          "body": "You've got to dig it to dig it, you dig?"
-        },
-        {
-          "__component": "shared.media",
-          "file": "coffee-art.jpg"
-        },
-        {
-          "__component": "shared.rich-text",
-          "body": "## Spatiantia astra \n\nFoeda, medio silva *errandum*: onus formam munere. Mutata bibulis est auxiliare arces etiamnunc verbis virgineo Priamidas illa Thescelus, nam fit locis lucis auras. Exitus hospes gratulor ut pondere [speslimite](http://www.curas.io/figuram); quid habent, Avernales faciente de. Pervenit Ino sonabile supplex cognoscenti vires, Bacchumque errat miserarum venandi dignabere dedisti. Discrimina iuncosaque virgaque tot sine superest [fissus](http://quos.org/sitet.aspx). Non color esset potest non sumit, sed vix arserat. Nisi immo silva tantum pectusque quos pennis quisquam artus!"
-        },
-        {
-          "__component": "shared.slider",
-          "files": ["coffee-art.jpg", "coffee-beans.jpg"]
-        }
-      ]
-    },
-    {
-      "title": "A bug is becoming a meme on the internet",
-      "slug": "a-bug-is-becoming-a-meme-on-the-internet",
-      "category": {
-        "id": 2
-      },
-      "author": {
-        "id": 2
-      },
-      "description": "How a bug on MySQL is becoming a meme on the internet",
-      "cover": null,
-      "blocks": [
-        {
-          "__component": "shared.rich-text",
-          "body": "## Probant \n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. \n\n## Abit sua\n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. "
-        },
-        {
-          "__component": "shared.quote",
-          "title": "Thelonius Monk",
-          "body": "You've got to dig it to dig it, you dig?"
-        },
-        {
-          "__component": "shared.media",
-          "file": "coffee-art.jpg"
-        },
-        {
-          "__component": "shared.rich-text",
-          "body": "## Spatiantia astra \n\nFoeda, medio silva *errandum*: onus formam munere. Mutata bibulis est auxiliare arces etiamnunc verbis virgineo Priamidas illa Thescelus, nam fit locis lucis auras. Exitus hospes gratulor ut pondere [speslimite](http://www.curas.io/figuram); quid habent, Avernales faciente de. Pervenit Ino sonabile supplex cognoscenti vires, Bacchumque errat miserarum venandi dignabere dedisti. Discrimina iuncosaque virgaque tot sine superest [fissus](http://quos.org/sitet.aspx). Non color esset potest non sumit, sed vix arserat. Nisi immo silva tantum pectusque quos pennis quisquam artus!"
-        },
-        {
-          "__component": "shared.slider",
-          "files": ["coffee-art.jpg", "coffee-beans.jpg"]
-        }
-      ]
-    },
-    {
-      "title": "Beautiful picture",
-      "slug": "beautiful-picture",
-      "category": {
-        "id": 4
-      },
-      "author": {
-        "id": 2
-      },
-      "description": "Description of a beautiful picture",
-      "cover": null,
-      "blocks": [
-        {
-          "__component": "shared.rich-text",
-          "body": "## Probant \n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. \n\n## Abit sua\n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. "
-        },
-        {
-          "__component": "shared.quote",
-          "title": "Thelonius Monk",
-          "body": "You've got to dig it to dig it, you dig?"
-        },
-        {
-          "__component": "shared.media",
-          "file": "coffee-art.jpg"
-        },
-        {
-          "__component": "shared.rich-text",
-          "body": "## Spatiantia astra \n\nFoeda, medio silva *errandum*: onus formam munere. Mutata bibulis est auxiliare arces etiamnunc verbis virgineo Priamidas illa Thescelus, nam fit locis lucis auras. Exitus hospes gratulor ut pondere [speslimite](http://www.curas.io/figuram); quid habent, Avernales faciente de. Pervenit Ino sonabile supplex cognoscenti vires, Bacchumque errat miserarum venandi dignabere dedisti. Discrimina iuncosaque virgaque tot sine superest [fissus](http://quos.org/sitet.aspx). Non color esset potest non sumit, sed vix arserat. Nisi immo silva tantum pectusque quos pennis quisquam artus!"
-        },
-        {
-          "__component": "shared.slider",
-          "files": ["coffee-art.jpg", "coffee-beans.jpg"]
-        }
-      ]
-    },
-    {
-      "title": "What's inside a Black Hole",
-      "slug": "what-s-inside-a-black-hole",
-      "category": {
-        "id": 1
-      },
-      "author": {
-        "id": 2
-      },
-      "description": "Maybe the answer is in this article, or not...",
-      "cover": null,
-      "blocks": [
-        {
-          "__component": "shared.rich-text",
-          "body": "## Probant \n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. \n\n## Abit sua\n\nse Lorem markdownum negat. Argo *saxa* videnda cornuaque hunc qui tanta spes teneas! Obliquis est dicenti est salutat ille tamen iuvenum nostrae dolore. - Colores nocituraque comitata eripiunt - Addit quodcunque solum cui et dextram illis - Nulli meus nec extemplo ille ferebat pressit Se blandita fulvae vox gravem Pittheus cesserunt sanguine herbis tu comitum tenuit. Sui in ruunt; Doridaque maculosae fuissem! Et loqui. "
-        },
-        {
-          "__component": "shared.quote",
-          "title": "Thelonius Monk",
-          "body": "You've got to dig it to dig it, you dig?"
-        },
-        {
-          "__component": "shared.media",
-          "file": "coffee-art.jpg"
-        },
-        {
-          "__component": "shared.rich-text",
-          "body": "## Spatiantia astra \n\nFoeda, medio silva *errandum*: onus formam munere. Mutata bibulis est auxiliare arces etiamnunc verbis virgineo Priamidas illa Thescelus, nam fit locis lucis auras. Exitus hospes gratulor ut pondere [speslimite](http://www.curas.io/figuram); quid habent, Avernales faciente de. Pervenit Ino sonabile supplex cognoscenti vires, Bacchumque errat miserarum venandi dignabere dedisti. Discrimina iuncosaque virgaque tot sine superest [fissus](http://quos.org/sitet.aspx). Non color esset potest non sumit, sed vix arserat. Nisi immo silva tantum pectusque quos pennis quisquam artus!"
-        },
-        {
-          "__component": "shared.slider",
-          "files": ["coffee-art.jpg", "coffee-beans.jpg"]
+          "files": ["the-internet-s-own-boy.jpg", "default-image.png"]
         }
       ]
     }

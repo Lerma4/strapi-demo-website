@@ -168,13 +168,15 @@ async function updateBlocks(blocks) {
 
 async function importArticles() {
   for (const article of articles) {
-    const cover = await checkFileExistsBeforeUpload([`${article.slug}.jpg`]);
+    const coverFile = article.coverFile || `${article.slug}.jpg`;
+    const cover = await checkFileExistsBeforeUpload([coverFile]);
     const updatedBlocks = await updateBlocks(article.blocks);
+    const { coverFile: _coverFile, ...articleData } = article;
 
     await createEntry({
       model: 'article',
       entry: {
-        ...article,
+        ...articleData,
         cover,
         blocks: updatedBlocks,
         // Make sure it's not a draft
@@ -185,17 +187,22 @@ async function importArticles() {
 }
 
 async function importGlobal() {
-  const favicon = await checkFileExistsBeforeUpload(['favicon.png']);
-  const shareImage = await checkFileExistsBeforeUpload(['default-image.png']);
+  const favicon = await checkFileExistsBeforeUpload([global.faviconFile || 'favicon.png']);
+  const shareImage = await checkFileExistsBeforeUpload([
+    global.defaultSeo.shareImageFile || 'default-image.png',
+  ]);
+  const { faviconFile: _faviconFile, defaultSeo, ...globalData } = global;
+  const { shareImageFile: _shareImageFile, ...defaultSeoData } = defaultSeo;
+
   return createEntry({
     model: 'global',
     entry: {
-      ...global,
+      ...globalData,
       favicon,
       // Make sure it's not a draft
       publishedAt: Date.now(),
       defaultSeo: {
-        ...global.defaultSeo,
+        ...defaultSeoData,
         shareImage,
       },
     },
