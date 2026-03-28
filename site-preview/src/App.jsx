@@ -1,24 +1,106 @@
 import { startTransition, useDeferredValue, useEffect, useRef, useState } from 'react';
 import { ArrowRight, Boxes, CircleDot, Database, Gauge, Play, ShieldCheck, Sparkles } from 'lucide-react';
-import gsap from 'gsap';
-import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { AnimatePresence, motion, useReducedMotion, useScroll, useSpring, useTransform } from 'motion/react';
 import { DiagnosticShuffler, SchedulerCard, TelemetryTypewriter } from './components/FeatureArtifacts';
 import ProtocolSection from './components/ProtocolSection';
 import ArticleModal from './components/ArticleModal';
 import { experienceTheme, fallbackExperience } from './demoContent';
 import { buildExperience, fetchJson, normaliseArticle, renderRichText, STRAPI_URL } from './contentUtils';
 
-gsap.registerPlugin(ScrollTrigger);
+const springEase = [0.22, 1, 0.36, 1];
+
+const heroGroupVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.14,
+    },
+  },
+};
+
+const heroItemVariants = {
+  hidden: { opacity: 0, y: 42, filter: 'blur(12px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.9,
+      ease: springEase,
+    },
+  },
+};
+
+const sectionVariants = {
+  hidden: {},
+  visible: {
+    transition: {
+      staggerChildren: 0.14,
+    },
+  },
+};
+
+const sectionItemVariants = {
+  hidden: { opacity: 0, y: 52, filter: 'blur(12px)' },
+  visible: {
+    opacity: 1,
+    y: 0,
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.85,
+      ease: springEase,
+    },
+  },
+};
+
+const wordVariants = {
+  hidden: { opacity: 0, y: '115%', filter: 'blur(12px)' },
+  visible: (index) => ({
+    opacity: 1,
+    y: '0%',
+    filter: 'blur(0px)',
+    transition: {
+      duration: 0.95,
+      delay: 0.18 + index * 0.06,
+      ease: springEase,
+    },
+  }),
+};
+
+function WordReveal({ text, className }) {
+  return (
+    <div className={className}>
+      {text.split(' ').map((word, index) => (
+        <span key={`${word}-${index}`} className="mr-[0.18em] inline-block overflow-hidden align-top last:mr-0">
+          <motion.span className="inline-block" custom={index} variants={wordVariants}>
+            {word}
+          </motion.span>
+        </span>
+      ))}
+    </div>
+  );
+}
 
 function FloatingNav({ compact, siteName, articlesCount }) {
   return (
-    <header className="fixed left-0 top-4 z-50 w-full px-4 md:top-6 md:px-8">
-      <div
-        className={`mx-auto flex max-w-6xl items-center justify-between rounded-[2.4rem] border px-4 py-3 transition-all duration-500 md:px-6 ${
+    <motion.header
+      className="fixed left-0 top-4 z-50 w-full px-4 md:top-6 md:px-8"
+      initial={{ opacity: 0, y: -28 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.75, ease: springEase }}
+    >
+      <motion.div
+        className={`mx-auto flex max-w-6xl items-center justify-between rounded-[2.4rem] border px-4 py-3 md:px-6 ${
           compact
-            ? 'border-white/10 bg-ghost/60 text-graphite shadow-aura backdrop-blur-xl'
+            ? 'border-white/10 bg-ghost/75 text-graphite shadow-aura backdrop-blur-xl'
             : 'border-white/10 bg-transparent text-ghost'
         }`}
+        animate={{
+          scale: compact ? 0.985 : 1,
+          y: compact ? -2 : 0,
+        }}
+        transition={{ type: 'spring', stiffness: 220, damping: 22 }}
       >
         <div>
           <div className="text-[0.7rem] uppercase tracking-[0.35em] text-plasma">Northstar</div>
@@ -26,30 +108,36 @@ function FloatingNav({ compact, siteName, articlesCount }) {
         </div>
         <nav className="hidden items-center gap-6 text-sm md:flex">
           {fallbackExperience.nav.map((item) => (
-            <a key={item} className="nav-link" href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}>
+            <motion.a
+              key={item}
+              className="nav-link"
+              href={`#${item.toLowerCase().replace(/\s+/g, '-')}`}
+              whileHover={{ y: -2 }}
+              transition={{ type: 'spring', stiffness: 320, damping: 20 }}
+            >
               {item}
-            </a>
+            </motion.a>
           ))}
         </nav>
-        <a className="magnetic-button hidden md:inline-flex" href="#live-archive">
+        <motion.a className="magnetic-button hidden md:inline-flex" href="#live-archive" whileHover={{ y: -3, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
           <span />
           <span className="relative z-10 flex items-center gap-2">
             Open archive
             <ArrowRight size={16} />
           </span>
-        </a>
+        </motion.a>
         <div className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[0.7rem] font-medium uppercase tracking-[0.3em] md:hidden">
           <CircleDot size={14} className="text-plasma" />
           {articlesCount} items
         </div>
-      </div>
-    </header>
+      </motion.div>
+    </motion.header>
   );
 }
 
 export default function App() {
   const heroRef = useRef(null);
-  const appRef = useRef(null);
+  const manifestoRef = useRef(null);
   const [compactNav, setCompactNav] = useState(false);
   const [cmsData, setCmsData] = useState({
     connected: false,
@@ -65,6 +153,34 @@ export default function App() {
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [previewState, setPreviewState] = useState({ active: false, status: null, error: '' });
   const deferredQuery = useDeferredValue(query);
+  const shouldReduceMotion = useReducedMotion();
+
+  const { scrollYProgress: heroProgress } = useScroll({
+    target: heroRef,
+    offset: ['start start', 'end start'],
+  });
+  const heroImageScale = useSpring(
+    useTransform(heroProgress, [0, 1], shouldReduceMotion ? [1, 1] : [1, 1.14]),
+    { stiffness: 120, damping: 24 }
+  );
+  const heroImageY = useSpring(
+    useTransform(heroProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 120]),
+    { stiffness: 120, damping: 24 }
+  );
+  const heroPanelY = useSpring(
+    useTransform(heroProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 82]),
+    { stiffness: 120, damping: 24 }
+  );
+  const heroPanelRotate = useTransform(heroProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, -4]);
+  const orbOneY = useTransform(heroProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, -120]);
+  const orbTwoY = useTransform(heroProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 160]);
+
+  const { scrollYProgress: manifestoProgress } = useScroll({
+    target: manifestoRef,
+    offset: ['start end', 'end start'],
+  });
+  const manifestoImageY = useTransform(manifestoProgress, [0, 1], shouldReduceMotion ? [0, 0] : [-40, 56]);
+  const manifestoImageScale = useTransform(manifestoProgress, [0, 1], shouldReduceMotion ? [1.08, 1.08] : [1.04, 1.18]);
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -158,33 +274,6 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    const ctx = gsap.context(() => {
-      gsap.from('.hero-reveal', {
-        y: 40,
-        opacity: 0,
-        duration: 1,
-        stagger: 0.08,
-        ease: 'power3.out',
-      });
-
-      gsap.utils.toArray('.section-reveal').forEach((section) => {
-        gsap.from(section, {
-          y: 60,
-          opacity: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: {
-            trigger: section,
-            start: 'top 82%',
-          },
-        });
-      });
-    }, appRef);
-
-    return () => ctx.revert();
-  }, []);
-
-  useEffect(() => {
     const title = cmsData.global.siteName || fallbackExperience.fallbackCms.global.siteName;
     const description =
       cmsData.global.siteDescription || fallbackExperience.fallbackCms.global.siteDescription;
@@ -211,76 +300,116 @@ export default function App() {
     return matchesCategory && target.includes(deferredQuery.trim().toLowerCase());
   });
 
+  const statusHighlights = [
+    { label: 'Preview layer', value: cmsData.connected ? 'Live sync' : 'Fallback' },
+    { label: 'Archive', value: `${cmsData.articles.length} entries` },
+    { label: 'Mode', value: cmsData.usingFallback ? 'Cinematic demo' : 'API-backed' },
+  ];
+
   return (
-    <div ref={appRef} className="app-shell">
+    <div className="app-shell">
       <svg className="absolute h-0 w-0">
         <filter id="noiseFilter">
           <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" stitchTiles="stitch" />
           <feColorMatrix type="saturate" values="0" />
         </filter>
       </svg>
+
       <div className="noise-layer" />
+      <motion.div className="floating-orb orb-one" style={{ y: orbOneY }} />
+      <motion.div className="floating-orb orb-two" style={{ y: orbTwoY }} />
 
       <FloatingNav compact={compactNav} siteName={cmsData.global.siteName} articlesCount={cmsData.articles.length} />
 
-      {previewState.active && (
-        <div className="fixed left-1/2 top-24 z-[60] w-[min(92vw,720px)] -translate-x-1/2 rounded-[1.6rem] border border-plasma/40 bg-[#120f25]/90 px-5 py-4 shadow-aura backdrop-blur-xl">
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-            <div>
-              <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">Strapi Preview</div>
-              <div className="mt-1 text-sm text-ghost">
-                {previewState.error
-                  ? previewState.error
-                  : `Article preview loaded in ${previewState.status || 'draft'} mode.`}
+      <AnimatePresence>
+        {previewState.active && (
+          <motion.div
+            className="fixed left-1/2 top-24 z-[60] w-[min(92vw,720px)] -translate-x-1/2 rounded-[1.6rem] border border-plasma/40 bg-[#120f25]/90 px-5 py-4 shadow-aura backdrop-blur-xl"
+            initial={{ opacity: 0, y: -20, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -16, scale: 0.98 }}
+            transition={{ duration: 0.45, ease: springEase }}
+          >
+            <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
+              <div>
+                <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">Strapi Preview</div>
+                <div className="mt-1 text-sm text-ghost">
+                  {previewState.error
+                    ? previewState.error
+                    : `Article preview loaded in ${previewState.status || 'draft'} mode.`}
+                </div>
+              </div>
+              <div className="font-mono text-xs uppercase tracking-[0.28em] text-mist/75">
+                {previewState.status || 'draft'}
               </div>
             </div>
-            <div className="font-mono text-xs uppercase tracking-[0.28em] text-mist/75">
-              {previewState.status || 'draft'}
-            </div>
-          </div>
-        </div>
-      )}
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <main>
-        <section
-          ref={heroRef}
-          className="relative flex min-h-screen items-end overflow-hidden px-4 pb-12 pt-36 md:px-8 md:pb-16"
-          style={{
-            backgroundImage: `linear-gradient(180deg, rgba(10,10,20,0.18), rgba(10,10,20,0.9)), url(${experienceTheme.heroImage})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-          }}
-        >
+        <section ref={heroRef} className="relative isolate flex min-h-screen items-end overflow-hidden px-4 pb-12 pt-36 md:px-8 md:pb-16">
+          <motion.div className="hero-backdrop" style={{ scale: heroImageScale, y: heroImageY }}>
+            <div
+              className="absolute inset-0 bg-cover bg-center"
+              style={{
+                backgroundImage: `url(${experienceTheme.heroImage})`,
+              }}
+            />
+          </motion.div>
+          <div className="hero-vignette" />
+          <div className="hero-grid" />
+
           <div className="mx-auto grid w-full max-w-6xl gap-10 lg:grid-cols-[1.15fr_0.85fr] lg:items-end">
-            <div className="max-w-3xl">
-              <div className="hero-reveal inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[0.72rem] uppercase tracking-[0.35em] text-mist backdrop-blur-md">
+            <motion.div
+              className="max-w-3xl"
+              initial="hidden"
+              animate="visible"
+              variants={heroGroupVariants}
+            >
+              <motion.div
+                variants={heroItemVariants}
+                className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[0.72rem] uppercase tracking-[0.35em] text-mist backdrop-blur-md"
+              >
                 <Sparkles size={14} className="text-plasma" />
                 Strapi cinematic preview
-              </div>
-              <div className="mt-6 hero-reveal text-5xl font-semibold uppercase tracking-[-0.05em] text-ghost md:text-7xl">
-                {fallbackExperience.heroLead}
-              </div>
-              <div className="hero-reveal mt-2 font-serif text-[5.6rem] italic leading-none text-ghost md:text-[10rem]">
-                {fallbackExperience.heroDrama}
-              </div>
-              <p className="hero-reveal mt-8 max-w-2xl text-base leading-8 text-mist/80 md:text-lg">
+              </motion.div>
+
+              <WordReveal text={fallbackExperience.heroLead} className="mt-6 text-5xl font-semibold uppercase tracking-[-0.05em] text-ghost md:text-7xl" />
+              <WordReveal text={fallbackExperience.heroDrama} className="mt-2 font-serif text-[5.6rem] italic leading-none text-ghost md:text-[10rem]" />
+
+              <motion.p variants={heroItemVariants} className="mt-8 max-w-2xl text-base leading-8 text-mist/80 md:text-lg">
                 {fallbackExperience.heroBody}
-              </p>
-              <div className="hero-reveal mt-10 flex flex-wrap gap-4">
-                <a className="magnetic-button" href="#live-archive">
+              </motion.p>
+
+              <motion.div variants={heroItemVariants} className="mt-10 flex flex-wrap gap-4">
+                <motion.a className="magnetic-button" href="#live-archive" whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
                   <span />
                   <span className="relative z-10 flex items-center gap-2">
                     Explore the archive
                     <ArrowRight size={16} />
                   </span>
-                </a>
-                <a className="ghost-button" href={`${STRAPI_URL}/admin`} target="_blank" rel="noreferrer">
+                </motion.a>
+                <motion.a
+                  className="ghost-button"
+                  href={`${STRAPI_URL}/admin`}
+                  target="_blank"
+                  rel="noreferrer"
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  whileTap={{ scale: 0.99 }}
+                >
                   Open Strapi admin
-                </a>
-              </div>
-            </div>
+                </motion.a>
+              </motion.div>
+            </motion.div>
 
-            <div className="hero-reveal rounded-[2rem] border border-white/10 bg-[#10101d]/70 p-6 shadow-aura backdrop-blur-xl">
+            <motion.div
+              className="hero-dock rounded-[2rem] border border-white/10 bg-[#10101d]/72 p-6 shadow-aura backdrop-blur-xl"
+              initial={{ opacity: 0, y: 56, rotate: shouldReduceMotion ? 0 : 2, filter: 'blur(10px)' }}
+              animate={{ opacity: 1, y: 0, rotate: 0, filter: 'blur(0px)' }}
+              transition={{ duration: 0.95, delay: 0.3, ease: springEase }}
+              style={{ y: heroPanelY, rotate: heroPanelRotate }}
+            >
               <div className="mb-6 flex items-center justify-between">
                 <div>
                   <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">System status</div>
@@ -293,6 +422,7 @@ export default function App() {
                   {cmsData.updatedAt}
                 </div>
               </div>
+
               <div className="grid gap-4 sm:grid-cols-3">
                 <div className="stat-card">
                   <Database size={18} />
@@ -310,6 +440,7 @@ export default function App() {
                   <span>Rendering mode</span>
                 </div>
               </div>
+
               <div className="mt-6 rounded-[1.6rem] border border-white/10 bg-white/5 p-5">
                 <div className="mb-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-[0.35em] text-mist/60">
                   <ShieldCheck size={16} className="text-plasma" />
@@ -317,64 +448,110 @@ export default function App() {
                 </div>
                 <p className="text-sm leading-7 text-mist/80">{cmsData.global.siteDescription}</p>
               </div>
-            </div>
+
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {statusHighlights.map((item) => (
+                  <motion.div
+                    key={item.label}
+                    className="hero-highlight-card"
+                    whileHover={{ y: -3, scale: 1.01 }}
+                    transition={{ type: 'spring', stiffness: 300, damping: 22 }}
+                  >
+                    <div className="text-[0.65rem] uppercase tracking-[0.3em] text-mist/55">{item.label}</div>
+                    <div className="mt-3 text-sm font-semibold text-ghost">{item.value}</div>
+                  </motion.div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </section>
 
-        <section id="capabilities" className="section-shell section-reveal">
-          <div className="section-heading">
+        <motion.section
+          id="capabilities"
+          className="section-shell"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={sectionVariants}
+        >
+          <motion.div className="section-heading" variants={sectionItemVariants}>
             <div className="eyebrow">Capabilities</div>
             <h2>Interactive functional artifacts for explaining Strapi without showing a dashboard first.</h2>
-          </div>
+          </motion.div>
           <div className="grid gap-6 lg:grid-cols-3">
             <DiagnosticShuffler />
             <TelemetryTypewriter />
             <SchedulerCard />
           </div>
-        </section>
+        </motion.section>
 
-        <section id="manifesto" className="manifesto-shell section-reveal">
-          <div
+        <section id="manifesto" ref={manifestoRef} className="manifesto-shell section-shell">
+          <motion.div
             className="manifesto-image"
-            style={{ backgroundImage: `url(${experienceTheme.manifestoImage})` }}
+            style={{ y: manifestoImageY, scale: manifestoImageScale, backgroundImage: `url(${experienceTheme.manifestoImage})` }}
           />
-          <div className="relative z-10 mx-auto max-w-6xl px-4 py-24 md:px-8 md:py-28">
-            <div className="eyebrow">{fallbackExperience.manifesto.eyebrow}</div>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-mist/80">{fallbackExperience.manifesto.small}</p>
-            <h2 className="mt-10 max-w-5xl text-5xl leading-[0.95] text-ghost md:text-7xl">
+          <motion.div
+            className="relative z-10 mx-auto max-w-6xl"
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, amount: 0.18 }}
+            variants={sectionVariants}
+          >
+            <motion.div variants={sectionItemVariants} className="eyebrow">
+              {fallbackExperience.manifesto.eyebrow}
+            </motion.div>
+            <motion.p variants={sectionItemVariants} className="mt-6 max-w-2xl text-lg leading-8 text-mist/80">
+              {fallbackExperience.manifesto.small}
+            </motion.p>
+            <motion.h2 variants={sectionItemVariants} className="mt-10 max-w-5xl text-5xl leading-[0.95] text-ghost md:text-7xl">
               {fallbackExperience.manifesto.largePrefix}{' '}
               <span className="font-serif italic text-plasma">{fallbackExperience.manifesto.highlight}</span>
-            </h2>
-            <p className="mt-8 max-w-2xl text-base leading-8 text-mist/75 md:text-lg">
+            </motion.h2>
+            <motion.p variants={sectionItemVariants} className="mt-8 max-w-2xl text-base leading-8 text-mist/75 md:text-lg">
               {fallbackExperience.manifesto.body}
-            </p>
-            <div className="mt-10 grid gap-5 lg:grid-cols-2">
-              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+            </motion.p>
+            <motion.div variants={sectionItemVariants} className="mt-10 grid gap-5 lg:grid-cols-2">
+              <motion.div
+                className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-sm"
+                whileHover={{ y: -6, scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+              >
                 <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">About block</div>
                 <h3 className="mt-4 text-2xl font-semibold text-ghost">{cmsData.about.title}</h3>
                 <div className="mt-5 space-y-4">{renderRichText(aboutText?.body || '')}</div>
-              </div>
-              <div className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+              </motion.div>
+              <motion.div
+                className="rounded-[2rem] border border-white/10 bg-white/5 p-6 backdrop-blur-sm"
+                whileHover={{ y: -6, scale: 1.01 }}
+                transition={{ type: 'spring', stiffness: 260, damping: 24 }}
+              >
                 <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">Voice marker</div>
                 <p className="mt-5 font-serif text-4xl italic leading-tight text-ghost">
-                  “{aboutQuote?.body || 'Structured content should feel composed, not mechanical.'}”
+                  "{aboutQuote?.body || 'Structured content should feel composed, not mechanical.'}"
                 </p>
                 <div className="mt-6 font-mono text-xs uppercase tracking-[0.3em] text-mist/60">
                   {aboutQuote?.title || 'Northstar editorial principle'}
                 </div>
-              </div>
-            </div>
-          </div>
+              </motion.div>
+            </motion.div>
+          </motion.div>
         </section>
 
         <ProtocolSection />
 
-        <section id="live-archive" className="section-shell section-reveal">
-          <div className="section-heading">
+        <motion.section
+          id="live-archive"
+          className="section-shell"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.18 }}
+          variants={sectionVariants}
+        >
+          <motion.div className="section-heading" variants={sectionItemVariants}>
             <div className="eyebrow">Live archive</div>
             <h2>One polished surface for client demos, editorial reviews and API-driven content checks.</h2>
-          </div>
-          <div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+          </motion.div>
+          <motion.div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center" variants={sectionItemVariants}>
             <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-4 shadow-panel">
               <label className="text-[0.68rem] uppercase tracking-[0.35em] text-mist/60">Search archive</label>
               <input
@@ -405,56 +582,92 @@ export default function App() {
                 </button>
               ))}
             </div>
-          </div>
+          </motion.div>
 
           <div className="grid gap-6 lg:grid-cols-3">
-            {filteredArticles.map((article) => (
-              <article key={article.slug} className="archive-card">
-                <div
-                  className="archive-card-image"
-                  style={{
-                    backgroundImage: `linear-gradient(180deg, rgba(10,10,20,0.02), rgba(10,10,20,0.75)), url(${
-                      article.cover?.url || experienceTheme.textureImage
-                    })`,
-                  }}
-                />
-                <div className="archive-card-body">
-                  <div className="flex items-center justify-between text-[0.68rem] uppercase tracking-[0.3em] text-mist/60">
-                    <span>{article.category?.name || 'general'}</span>
-                    <span>{article.author?.name || 'Northstar Team'}</span>
+            <AnimatePresence mode="popLayout">
+              {filteredArticles.map((article, index) => (
+                <motion.article
+                  key={article.slug}
+                  layout
+                  className="archive-card"
+                  initial={{ opacity: 0, y: 48, filter: 'blur(10px)' }}
+                  whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
+                  exit={{ opacity: 0, y: 18, scale: 0.96 }}
+                  viewport={{ once: true, amount: 0.18 }}
+                  transition={{ duration: 0.7, delay: index * 0.06, ease: springEase }}
+                  whileHover={{ y: -10, rotateX: shouldReduceMotion ? 0 : 2, scale: 1.012 }}
+                >
+                  <motion.div
+                    className="archive-card-image"
+                    style={{
+                      backgroundImage: `linear-gradient(180deg, rgba(10,10,20,0.02), rgba(10,10,20,0.75)), url(${
+                        article.cover?.url || experienceTheme.textureImage
+                      })`,
+                    }}
+                    whileHover={{ scale: 1.05 }}
+                    transition={{ duration: 0.6, ease: springEase }}
+                  />
+                  <div className="archive-card-body">
+                    <div className="flex items-center justify-between text-[0.68rem] uppercase tracking-[0.3em] text-mist/60">
+                      <span>{article.category?.name || 'general'}</span>
+                      <span>{article.author?.name || 'Northstar Team'}</span>
+                    </div>
+                    <h3 className="mt-5 text-2xl font-semibold text-ghost">{article.title}</h3>
+                    <p className="mt-4 text-sm leading-7 text-mist/75">{article.description}</p>
+                    <motion.button
+                      type="button"
+                      onClick={() => setActiveArticle(article)}
+                      className="inline-link mt-6"
+                      whileHover={{ x: 4 }}
+                      whileTap={{ scale: 0.98 }}
+                    >
+                      Open content detail
+                      <ArrowRight size={15} />
+                    </motion.button>
                   </div>
-                  <h3 className="mt-5 text-2xl font-semibold text-ghost">{article.title}</h3>
-                  <p className="mt-4 text-sm leading-7 text-mist/75">{article.description}</p>
-                  <button type="button" onClick={() => setActiveArticle(article)} className="inline-link mt-6">
-                    Open content detail
-                    <ArrowRight size={15} />
-                  </button>
-                </div>
-              </article>
-            ))}
+                </motion.article>
+              ))}
+            </AnimatePresence>
           </div>
 
-          {!filteredArticles.length && (
-            <div className="mt-8 rounded-[1.8rem] border border-dashed border-white/10 bg-white/5 p-8 text-center text-mist/60">
-              No archive entries match the current filters.
-            </div>
-          )}
-        </section>
+          <AnimatePresence>
+            {!filteredArticles.length && (
+              <motion.div
+                className="mt-8 rounded-[1.8rem] border border-dashed border-white/10 bg-white/5 p-8 text-center text-mist/60"
+                initial={{ opacity: 0, y: 24 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 12 }}
+              >
+                No archive entries match the current filters.
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </motion.section>
 
-        <section className="section-shell section-reveal">
-          <div className="section-heading">
+        <motion.section
+          className="section-shell"
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          variants={sectionVariants}
+        >
+          <motion.div className="section-heading" variants={sectionItemVariants}>
             <div className="eyebrow">Start now</div>
             <h2>Choose how you want to use the preview in the room.</h2>
-          </div>
+          </motion.div>
           <div className="grid gap-6 lg:grid-cols-3">
-            {fallbackExperience.plans.map((plan) => (
-              <article
+            {fallbackExperience.plans.map((plan, index) => (
+              <motion.article
                 key={plan.name}
                 className={`rounded-[2rem] border p-7 shadow-panel ${
                   plan.featured
                     ? 'border-plasma bg-plasma text-ghost scale-[1.02]'
                     : 'border-white/10 bg-white/5 text-ghost'
                 }`}
+                variants={sectionItemVariants}
+                transition={{ delay: index * 0.08 }}
+                whileHover={{ y: -8, scale: plan.featured ? 1.04 : 1.02 }}
               >
                 <div className="text-[0.68rem] uppercase tracking-[0.35em] text-current/70">{plan.name}</div>
                 <div className="mt-4 text-4xl font-semibold">{plan.price}</div>
@@ -467,18 +680,20 @@ export default function App() {
                     </li>
                   ))}
                 </ul>
-                <a
+                <motion.a
                   className={`mt-8 inline-flex ${plan.featured ? 'accent-button' : 'ghost-button'}`}
                   href={plan.featured ? '#live-archive' : `${STRAPI_URL}/api/articles`}
                   target={plan.featured ? undefined : '_blank'}
                   rel={plan.featured ? undefined : 'noreferrer'}
+                  whileHover={{ y: -3 }}
+                  whileTap={{ scale: 0.99 }}
                 >
                   {plan.featured ? 'Launch the demo flow' : 'Inspect the data'}
-                </a>
-              </article>
+                </motion.a>
+              </motion.article>
             ))}
           </div>
-        </section>
+        </motion.section>
       </main>
 
       <footer className="mx-4 mt-10 rounded-t-[4rem] border border-white/10 bg-[#090910] px-6 pb-10 pt-12 md:mx-8 md:px-10">

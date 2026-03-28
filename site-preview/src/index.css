@@ -12,7 +12,9 @@ html {
 
 body {
   margin: 0;
-  background: #0a0a14;
+  background:
+    radial-gradient(circle at top, rgba(123, 97, 255, 0.2), transparent 35%),
+    #0a0a14;
   color: #f0eff4;
   font-family: 'Sora', sans-serif;
 }
@@ -35,9 +37,33 @@ input {
   .app-shell {
     @apply relative overflow-x-hidden bg-void;
     background-image:
-      radial-gradient(circle at top left, rgba(123, 97, 255, 0.22), transparent 28%),
-      radial-gradient(circle at 80% 20%, rgba(123, 97, 255, 0.12), transparent 24%),
+      radial-gradient(circle at top left, rgba(123, 97, 255, 0.24), transparent 28%),
+      radial-gradient(circle at 80% 20%, rgba(123, 97, 255, 0.14), transparent 24%),
+      radial-gradient(circle at 15% 70%, rgba(255, 255, 255, 0.08), transparent 18%),
       linear-gradient(180deg, #0a0a14 0%, #070710 100%);
+  }
+
+  .floating-orb {
+    @apply pointer-events-none fixed z-0 rounded-full;
+    filter: blur(16px);
+    mix-blend-mode: screen;
+    opacity: 0.55;
+  }
+
+  .orb-one {
+    top: 7rem;
+    right: -8rem;
+    width: 22rem;
+    height: 22rem;
+    background: radial-gradient(circle, rgba(123, 97, 255, 0.45) 0%, rgba(123, 97, 255, 0.08) 58%, transparent 72%);
+  }
+
+  .orb-two {
+    top: 52vh;
+    left: -7rem;
+    width: 18rem;
+    height: 18rem;
+    background: radial-gradient(circle, rgba(255, 255, 255, 0.18) 0%, rgba(123, 97, 255, 0.08) 55%, transparent 72%);
   }
 
   .noise-layer {
@@ -63,6 +89,26 @@ input {
 
   .section-heading h2 {
     @apply mt-4 text-4xl font-semibold leading-tight text-ghost md:text-6xl;
+  }
+
+  .hero-backdrop {
+    @apply absolute inset-0;
+  }
+
+  .hero-vignette {
+    @apply absolute inset-0;
+    background:
+      radial-gradient(circle at 24% 28%, rgba(255, 255, 255, 0.14), transparent 22%),
+      linear-gradient(180deg, rgba(8, 8, 16, 0.16) 0%, rgba(8, 8, 16, 0.84) 78%, rgba(8, 8, 16, 0.96) 100%);
+  }
+
+  .hero-grid {
+    @apply absolute inset-0 opacity-50;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 1px);
+    background-size: 64px 64px;
+    mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.55), transparent 88%);
   }
 
   .eyebrow {
@@ -111,6 +157,8 @@ input {
 
   .artifact-card {
     @apply rounded-[2rem] border border-white/10 bg-ghost/5 p-6 shadow-panel backdrop-blur-sm;
+    transform-style: preserve-3d;
+    background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
   }
 
   .artifact-head {
@@ -123,21 +171,30 @@ input {
 
   .manifesto-shell {
     @apply relative overflow-hidden bg-[#080810];
+    background-image:
+      radial-gradient(circle at 20% 30%, rgba(123, 97, 255, 0.16), transparent 26%),
+      linear-gradient(180deg, rgba(8, 8, 16, 0.92), rgba(8, 8, 16, 0.98));
   }
 
   .manifesto-image {
-    @apply absolute inset-0 opacity-20;
+    @apply absolute inset-0 opacity-25;
     background-position: center;
     background-size: cover;
     transform: scale(1.08);
   }
 
   .protocol-stage {
-    @apply relative min-h-[72vh];
+    @apply relative min-h-[82vh];
   }
 
   .protocol-card {
-    @apply sticky top-24 rounded-[2.5rem] border border-white/10 bg-[#0f0f1d] p-8 shadow-aura md:p-12;
+    @apply sticky top-24 rounded-[2.5rem] border border-white/10 p-8 shadow-aura backdrop-blur-xl md:p-12;
+    background-color: rgba(15, 15, 29, 0.88);
+    transform-origin: top center;
+    will-change: transform, opacity, filter;
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+      radial-gradient(circle at top right, rgba(123, 97, 255, 0.18), transparent 35%);
   }
 
   .protocol-visual {
@@ -156,7 +213,6 @@ input {
     @apply absolute left-0 right-0 h-1 rounded-full bg-plasma;
     top: 18%;
     box-shadow: 0 0 30px rgba(123, 97, 255, 0.85);
-    animation: sweep 3.6s linear infinite;
   }
 
   .wave-line {
@@ -172,12 +228,17 @@ input {
 
   .archive-card {
     @apply overflow-hidden rounded-[2rem] border border-white/10 bg-[#10101d] shadow-panel transition duration-300 ease-magnetic hover:-translate-y-px hover:scale-[1.01];
+    transform-style: preserve-3d;
+    background-image:
+      linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02)),
+      radial-gradient(circle at top, rgba(123, 97, 255, 0.12), transparent 28%);
   }
 
   .archive-card-image {
     @apply h-64 w-full;
     background-position: center;
     background-size: cover;
+    will-change: transform;
   }
 
   .archive-card-body {
@@ -198,6 +259,25 @@ input {
 
   .scheduler-cursor {
     @apply absolute left-5 top-5 z-10 h-6 w-6 rounded-full border border-ghost/50 bg-plasma shadow-[0_0_24px_rgba(123,97,255,0.7)];
+  }
+
+  .hero-dock {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-dock::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background:
+      linear-gradient(140deg, rgba(255, 255, 255, 0.08), transparent 30%),
+      radial-gradient(circle at top right, rgba(123, 97, 255, 0.22), transparent 38%);
+    pointer-events: none;
+  }
+
+  .hero-highlight-card {
+    @apply rounded-[1.2rem] border border-white/10 bg-black/20 p-4 backdrop-blur-sm;
   }
 
   .richtext-html {
