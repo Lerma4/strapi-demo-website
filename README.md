@@ -11,7 +11,7 @@ The goal of the project is twofold:
 - Backend CMS: Strapi `5.40.0`
 - Backend language: TypeScript
 - Default local database: SQLite in `.tmp/data.db`
-- Preview frontend: React + Vite + Tailwind CSS + GSAP in `site-preview/`
+- Preview frontend: React + Vite + Tailwind CSS + Motion React in `site-preview/`
 
 ## Repository structure
 
@@ -34,7 +34,7 @@ This repository is not just a plain Strapi starter. It is structured around two 
 That means there are two different layers to understand:
 
 - Strapi controls structured content, publishing state, media, and API exposure
-- `site-preview/` controls the visual presentation, motion, layout, and article preview experience
+- `site-preview/` controls the visual presentation, Motion-based animation system, layout, and article preview experience
 
 In practice:
 

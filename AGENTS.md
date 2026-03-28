@@ -26,7 +26,7 @@
 - `data/data.json`: demo dataset used by the seed script.
 - `data/uploads/`: source media used during seeding.
 - `scripts/seed.js`: first-run seed script that imports demo data and opens public read permissions.
-- `site-preview/`: standalone client-facing preview app built to showcase Strapi content and workflows.
+- `site-preview/`: standalone client-facing preview app built to showcase Strapi content and workflows, using React 19, Tailwind CSS, and Motion React for the animated experience.
 - `database/migrations/`: present but currently empty.
 - `public/uploads/`: generated uploaded media. Treat as generated output.
 
@@ -53,6 +53,7 @@
 - When editing a content type in `src/api/<name>/content-types/.../schema.json`, also review the matching `controllers/`, `routes/`, and `services/` files in the same API folder.
 - Do not assume strict TypeScript guarantees. `tsconfig.json` has `strict: false`.
 - Do not treat `src/admin/` as an active extension point unless you explicitly introduce a real admin customization.
+- For `site-preview/`, prefer Motion React's declarative primitives (`motion`, `whileInView`, `useScroll`, `useTransform`, `AnimatePresence`) over imperative animation libraries.
 - Be careful with the seed flow:
   - `npm run seed:example` uses `scripts/seed.js`
   - it imports from `data/data.json` and `data/uploads/`

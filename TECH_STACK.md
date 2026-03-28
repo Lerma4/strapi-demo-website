@@ -14,7 +14,7 @@
 - React DOM `^19.0.0`
 - Vite `^5.4.21`
 - Tailwind CSS `3.4.17`
-- GSAP `^3.12.7` with `ScrollTrigger`
+- Motion `^12.38.0` (`motion/react`)
 - Lucide React `^0.468.0`
 
 ## Repository layout
