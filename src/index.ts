@@ -1,4 +1,6 @@
-// import type { Core } from '@strapi/strapi';
+import type { Core } from '@strapi/strapi';
+
+import { FRANKFURTER_ADMIN_ACTIONS } from './frankfurter-permissions';
 
 export default {
   /**
@@ -16,5 +18,11 @@ export default {
    * This gives you an opportunity to set up your data model,
    * run jobs, or perform some special logic.
    */
-  bootstrap(/* { strapi }: { strapi: Core.Strapi } */) {},
+  async bootstrap({ strapi }: { strapi: Core.Strapi }) {
+    await strapi
+      .service('admin::permission')
+      .actionProvider.registerMany(FRANKFURTER_ADMIN_ACTIONS);
+
+    await strapi.service('admin::role').resetSuperAdminPermissions();
+  },
 };

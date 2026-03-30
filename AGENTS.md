@@ -5,7 +5,7 @@
 - This repository is a Strapi 5 application (`5.40.0`) used as a headless CMS.
 - The server side uses TypeScript; the admin panel runs on Strapi's React 18 stack.
 - The default local database is SQLite via `better-sqlite3`, stored in `.tmp/data.db`.
-- The project is close to Strapi boilerplate: most custom behavior lives in content-type schemas and the seed script, not in custom controllers/services.
+- The project is still mostly close to Strapi boilerplate, but it now also includes a custom admin dashboard page for external data demos.
 
 ## Tooling and runtime
 
@@ -19,10 +19,11 @@
 ## Repository map
 
 - `config/`: Strapi runtime configuration (`admin.ts`, `api.ts`, `database.ts`, `middlewares.ts`, `plugins.ts`, `server.ts`).
-- `src/index.ts`: global `register` and `bootstrap` hooks. Currently empty.
+- `src/index.ts`: global `register` and `bootstrap` hooks. Used to register custom admin permission actions and refresh Super Admin permissions when admin-only actions are added.
 - `src/api/`: content-types and related `controllers`, `routes`, `services`.
 - `src/components/shared/`: shared component schemas used by dynamic zones and SEO fields.
-- `src/admin/`: only Strapi example files are present; there is no active admin customization yet.
+- `src/admin/`: active Strapi admin customization entrypoint for custom pages and menu links.
+- `src/frankfurter-permissions.ts`: shared constants for admin-only permission ids/actions used by the custom dashboard.
 - `data/data.json`: demo dataset used by the seed script.
 - `data/uploads/`: source media used during seeding.
 - `scripts/seed.js`: first-run seed script that imports demo data and opens public read permissions.
@@ -52,7 +53,10 @@
 - Prefer changing Strapi schema/config first. Add custom controller/service/router logic only when schema-level configuration is not enough.
 - When editing a content type in `src/api/<name>/content-types/.../schema.json`, also review the matching `controllers/`, `routes/`, and `services/` files in the same API folder.
 - Do not assume strict TypeScript guarantees. `tsconfig.json` has `strict: false`.
-- Do not treat `src/admin/` as an active extension point unless you explicitly introduce a real admin customization.
+- `src/admin/` is now an active extension point. Keep admin additions small, focused, and aligned with Strapi design-system/layout primitives.
+- When adding an admin-only page, prefer registering a real admin permission action and wiring both the menu link and the page route to the same permission check.
+- If you register new admin permission actions in `src/index.ts`, also ensure the Super Admin role is refreshed so it automatically inherits them.
+- For charting in the admin, prefer the existing `recharts` dependency rather than adding a second charting library.
 - For `site-preview/`, prefer Motion React's declarative primitives (`motion`, `whileInView`, `useScroll`, `useTransform`, `AnimatePresence`) over imperative animation libraries.
 - Only when modifying the `site-preview` interface, first check whether an existing reusable component in `site-preview/src/components/` or `site-preview/COMPONENTS.md` already fits the change.
 - Only when modifying the `site-preview` interface, if you create a new component you must document it in `site-preview/COMPONENTS.md` in the same change.
@@ -83,7 +87,8 @@
 - There is no lint or formatter script configured in this repository.
 - For any code or config change, the minimum verification is `npm run build`.
 - If you touch the preview frontend in `site-preview/`, also run `npm run preview:build`.
-- If you change content types, seed logic, permissions, or bootstrapping, also validate behavior with `npm run dev` when feasible.
+- If you change content types, seed logic, permissions, bootstrapping, or admin permission registration, also validate behavior with `npm run dev` when feasible.
+- If you change admin-only permissions or custom admin pages, verify both that the page renders and that role-based visibility still behaves correctly for Super Admin and restricted roles.
 - If you change seed data or media references, verify that filenames in `data/data.json` and `data/uploads/` still match what `scripts/seed.js` expects.
 
 ## Generated and ignored files
