@@ -54,6 +54,8 @@
 - Do not assume strict TypeScript guarantees. `tsconfig.json` has `strict: false`.
 - Do not treat `src/admin/` as an active extension point unless you explicitly introduce a real admin customization.
 - For `site-preview/`, prefer Motion React's declarative primitives (`motion`, `whileInView`, `useScroll`, `useTransform`, `AnimatePresence`) over imperative animation libraries.
+- Only when modifying the `site-preview` interface, first check whether an existing reusable component in `site-preview/src/components/` or `site-preview/COMPONENTS.md` already fits the change.
+- Only when modifying the `site-preview` interface, if you create a new component you must document it in `site-preview/COMPONENTS.md` in the same change.
 - Be careful with the seed flow:
   - `npm run seed:example` uses `scripts/seed.js`
   - it imports from `data/data.json` and `data/uploads/`

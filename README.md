@@ -61,19 +61,30 @@ Shared blocks:
 
 ## Quick start
 
-### 1. Install backend dependencies
+### 1. Create your local environment file
+
+```bash
+cp .env.example .env
+```
+
+For local development, the placeholder values in `.env.example` are enough to boot the project.
+
+### 2. Install everything
+
+```bash
+npm run setup
+```
+
+This installs both the backend dependencies and the preview frontend dependencies.
+
+### 3. Install manually, if you prefer separate commands
 
 ```bash
 npm install
-```
-
-### 2. Install preview frontend dependencies
-
-```bash
 npm run preview:install
 ```
 
-### 3. Start Strapi
+### 4. Start Strapi
 
 ```bash
 npm run dev
@@ -83,7 +94,7 @@ Strapi admin will be available at:
 
 - [http://localhost:1337/admin](http://localhost:1337/admin)
 
-### 4. Start the preview frontend
+### 5. Start the preview frontend
 
 In a second terminal:
 
@@ -95,9 +106,33 @@ The preview site will be available at:
 
 - [http://localhost:4173](http://localhost:4173)
 
+If you want to start both the Strapi backend and the preview frontend together from the project root, you can use:
+
+```bash
+npm run dev:all
+```
+
+This command expects dependencies to be installed in both places first:
+
+```bash
+npm run setup
+```
+
+It also expects a local `.env` file:
+
+```bash
+cp .env.example .env
+```
+
 ## Environment variables
 
 See `.env.example` for the minimum required variables.
+
+Create your local file before starting Strapi:
+
+```bash
+cp .env.example .env
+```
 
 Important preview-related variables:
 
@@ -123,6 +158,29 @@ Important behavior:
 - it configures public read access for the demo APIs
 
 If your local database already contains old content, reseeding may require a clean database.
+
+### Generate test articles only
+
+If you want extra articles for UI, API, or preview checks without resetting the whole demo dataset, use:
+
+```bash
+npm run seed:test:articles
+```
+
+Useful variants:
+
+```bash
+npm run seed:test:articles -- --count=12
+npm run seed:test:articles -- --status=draft
+npm run seed:test:articles -- --status=mixed --count=8 --prefix=qa-run
+```
+
+Behavior to know:
+
+- it reuses existing authors and categories when available
+- if authors or categories are missing, it creates fallback ones automatically
+- `published` articles appear in the public preview archive
+- `draft` articles are useful for checking draft preview behavior from Strapi admin
 
 ## Preview modes
 
