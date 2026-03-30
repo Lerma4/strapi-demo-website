@@ -8,6 +8,8 @@
       "shareImageFile": "default-image.png"
     },
     "siteDescription": "A generic industrial technology company used to demo Strapi workflows, publishing and content operations.",
+    "logo": null,
+    "logoFile": "favicon.png",
     "favicon": null,
     "faviconFile": "favicon.png"
   },

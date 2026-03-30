@@ -135,6 +135,7 @@ export function buildExperience(payloads) {
     global: {
       siteName: liveGlobal.siteName || fallback.global.siteName,
       siteDescription: liveGlobal.siteDescription || fallback.global.siteDescription,
+      logo: liveGlobal.logo ? { url: pickMediaUrl(liveGlobal.logo) } : fallback.global.logo,
     },
     about: liveAbout,
     categories: liveCategories,

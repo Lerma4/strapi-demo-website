@@ -1,6 +1,7 @@
 import { createRef, useMemo, useRef } from 'react';
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform } from 'motion/react';
 import { fallbackExperience } from '../demoContent';
+import SectionHeading from './SectionHeading';
 
 const springEase = [0.22, 1, 0.36, 1];
 
@@ -124,16 +125,14 @@ export default function ProtocolSection() {
 
   return (
     <section id="protocol" ref={sectionRef} className="section-shell">
-      <motion.div
-        className="section-heading"
+      <SectionHeading
+        eyebrow="Protocol"
+        title="Sticky stacking archive for the publishing journey."
         initial={{ opacity: 0, y: 48, filter: 'blur(12px)' }}
         whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.8, ease: springEase }}
-      >
-        <div className="eyebrow">Protocol</div>
-        <h2>Sticky stacking archive for the publishing journey.</h2>
-      </motion.div>
+      />
       <div className="space-y-20">
         {fallbackExperience.protocol.map((item, index) => (
           <ProtocolStage

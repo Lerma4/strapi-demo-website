@@ -109,6 +109,7 @@ export const fallbackExperience = {
       siteName: 'Northstar Process Lab',
       siteDescription:
         'Generic industrial technology company used to demonstrate Strapi-powered publishing.',
+      logo: null,
     },
     about: {
       title: 'About Northstar Process Lab',

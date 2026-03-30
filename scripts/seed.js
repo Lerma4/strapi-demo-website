@@ -187,17 +187,19 @@ async function importArticles() {
 }
 
 async function importGlobal() {
+  const logo = await checkFileExistsBeforeUpload([global.logoFile || global.faviconFile || 'favicon.png']);
   const favicon = await checkFileExistsBeforeUpload([global.faviconFile || 'favicon.png']);
   const shareImage = await checkFileExistsBeforeUpload([
     global.defaultSeo.shareImageFile || 'default-image.png',
   ]);
-  const { faviconFile: _faviconFile, defaultSeo, ...globalData } = global;
+  const { logoFile: _logoFile, faviconFile: _faviconFile, defaultSeo, ...globalData } = global;
   const { shareImageFile: _shareImageFile, ...defaultSeoData } = defaultSeo;
 
   return createEntry({
     model: 'global',
     entry: {
       ...globalData,
+      logo,
       favicon,
       // Make sure it's not a draft
       publishedAt: Date.now(),
