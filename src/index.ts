@@ -1,6 +1,7 @@
 import type { Core } from '@strapi/strapi';
 
 import { FRANKFURTER_ADMIN_ACTIONS } from './frankfurter-permissions';
+import { OPEN_SKY_ADMIN_ACTIONS } from './open-sky-permissions';
 
 export default {
   /**
@@ -21,7 +22,10 @@ export default {
   async bootstrap({ strapi }: { strapi: Core.Strapi }) {
     await strapi
       .service('admin::permission')
-      .actionProvider.registerMany(FRANKFURTER_ADMIN_ACTIONS);
+      .actionProvider.registerMany([
+        ...FRANKFURTER_ADMIN_ACTIONS,
+        ...OPEN_SKY_ADMIN_ACTIONS,
+      ]);
 
     await strapi.service('admin::role').resetSuperAdminPermissions();
   },

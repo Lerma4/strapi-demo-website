@@ -1,10 +1,11 @@
 import type { StrapiApp } from '@strapi/strapi/admin';
-import { TrendUp } from '@strapi/icons';
+import { Plane, TrendUp } from '@strapi/icons';
 
 import {
   FRANKFURTER_APP_ID,
   FRANKFURTER_READ_PERMISSIONS,
 } from '../frankfurter-permissions';
+import { OPEN_SKY_APP_ID, OPEN_SKY_READ_PERMISSIONS } from '../open-sky-permissions';
 
 export default {
   config: {
@@ -23,9 +24,26 @@ export default {
       position: 20,
     });
 
+    app.addMenuLink({
+      to: 'open-sky',
+      icon: Plane,
+      intlLabel: {
+        id: `${OPEN_SKY_APP_ID}.plugin.name`,
+        defaultMessage: 'OpenSky',
+      },
+      Component: () => import('./pages/OpenSkyPage'),
+      permissions: OPEN_SKY_READ_PERMISSIONS,
+      position: 21,
+    });
+
     app.registerPlugin({
       id: FRANKFURTER_APP_ID,
       name: 'Frankfurter',
+    });
+
+    app.registerPlugin({
+      id: OPEN_SKY_APP_ID,
+      name: 'OpenSky',
     });
   },
   bootstrap() {},
