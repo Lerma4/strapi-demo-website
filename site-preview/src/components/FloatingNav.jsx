@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { ArrowRight, CircleDot, Menu, Orbit, X } from 'lucide-react';
+import { ArrowRight, Menu, Orbit, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { fallbackExperience } from '../demoContent';
 import { springEase } from './previewMotion';
@@ -142,18 +142,7 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
             <ArrowRight size={16} />
           </span>
         </motion.a>
-        <div className="flex items-center gap-2 md:hidden">
-          <motion.div
-            className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 text-[0.68rem] font-medium uppercase tracking-[0.28em]"
-            animate={{
-              opacity: isMenuOpen ? 0 : 1,
-              scale: isMenuOpen ? 0.94 : 1,
-            }}
-            transition={{ duration: 0.22, ease: springEase }}
-          >
-            <CircleDot size={14} className="text-plasma" />
-            {articlesCount} items
-          </motion.div>
+        <div className="flex items-center md:hidden">
           <motion.button
             type="button"
             aria-expanded={isMenuOpen}
