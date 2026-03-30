@@ -5,7 +5,7 @@
 - This repository is a Strapi 5 application (`5.40.0`) used as a headless CMS.
 - The server side uses TypeScript; the admin panel runs on Strapi's React 18 stack.
 - The default local database is SQLite via `better-sqlite3`, stored in `.tmp/data.db`.
-- The project is still mostly close to Strapi boilerplate, but it now also includes a custom admin dashboard page for external data demos.
+- The project is still mostly close to Strapi boilerplate, but it now also includes custom admin dashboard pages for external data demos (currently Frankfurter and OpenSky).
 
 ## Tooling and runtime
 
@@ -24,6 +24,8 @@
 - `src/components/shared/`: shared component schemas used by dynamic zones and SEO fields.
 - `src/admin/`: active Strapi admin customization entrypoint for custom pages and menu links.
 - `src/frankfurter-permissions.ts`: shared constants for admin-only permission ids/actions used by the custom dashboard.
+- `src/open-sky-permissions.ts`: shared constants for the OpenSky admin permission action used by the flight tracking dashboard.
+- `src/policies/`: global Strapi policies, including admin-token protection for custom routes consumed by admin-only dashboards.
 - `data/data.json`: demo dataset used by the seed script.
 - `data/uploads/`: source media used during seeding.
 - `scripts/seed.js`: first-run seed script that imports demo data and opens public read permissions.
