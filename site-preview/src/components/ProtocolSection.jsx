@@ -1,6 +1,6 @@
 import { createRef, useMemo, useRef } from 'react';
 import { motion, useMotionTemplate, useReducedMotion, useScroll, useTransform } from 'motion/react';
-import { fallbackExperience } from '../demoContent';
+import { usePreviewI18n } from '../i18n';
 import SectionHeading from './SectionHeading';
 
 const springEase = [0.22, 1, 0.36, 1];
@@ -55,6 +55,7 @@ function ProtocolVisual({ index, shouldReduceMotion }) {
 
 function ProtocolStage({ item, index, stageRef, nextStageRef }) {
   const shouldReduceMotion = useReducedMotion();
+  const { copy } = usePreviewI18n();
   const { scrollYProgress: entryProgress } = useScroll({
     target: stageRef,
     offset: ['start 86%', 'start 28%'],
@@ -94,7 +95,7 @@ function ProtocolStage({ item, index, stageRef, nextStageRef }) {
             transition={{ duration: 0.7, ease: springEase }}
           >
             <div className="mb-4 font-mono text-sm uppercase tracking-[0.35em] text-plasma">
-              Step {item.step}
+              {copy.ui.stepLabel(item.step)}
             </div>
             <h3 className="text-3xl font-semibold text-ghost md:text-5xl">{item.title}</h3>
             <p className="mt-6 max-w-xl text-base leading-8 text-mist/75 md:text-lg">
@@ -118,23 +119,24 @@ function ProtocolStage({ item, index, stageRef, nextStageRef }) {
 
 export default function ProtocolSection() {
   const sectionRef = useRef(null);
+  const { copy } = usePreviewI18n();
   const stageRefs = useMemo(
-    () => fallbackExperience.protocol.map(() => createRef()),
-    []
+    () => copy.protocol.map(() => createRef()),
+    [copy.protocol]
   );
 
   return (
     <section id="protocol" ref={sectionRef} className="section-shell">
       <SectionHeading
-        eyebrow="Protocol"
-        title="Sticky stacking archive for the publishing journey."
+        eyebrow={copy.sections.protocol.eyebrow}
+        title={copy.sections.protocol.title}
         initial={{ opacity: 0, y: 48, filter: 'blur(12px)' }}
         whileInView={{ opacity: 1, y: 0, filter: 'blur(0px)' }}
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.8, ease: springEase }}
       />
       <div className="space-y-20">
-        {fallbackExperience.protocol.map((item, index) => (
+        {copy.protocol.map((item, index) => (
           <ProtocolStage
             key={item.step}
             item={item}

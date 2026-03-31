@@ -1,7 +1,14 @@
 import { AnimatePresence, motion } from 'motion/react';
+import { usePreviewI18n } from '../i18n';
 import { springEase } from './previewMotion';
 
 export default function PreviewStatusBanner({ previewState }) {
+  const { copy } = usePreviewI18n();
+  const currentStatus =
+    copy.ui.previewStatusLabel[previewState.status] ||
+    previewState.status ||
+    copy.ui.previewStatusLabel.draft;
+
   return (
     <AnimatePresence>
       {previewState.active && (
@@ -14,15 +21,15 @@ export default function PreviewStatusBanner({ previewState }) {
         >
           <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
             <div>
-              <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">Strapi Preview</div>
+              <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">{copy.ui.previewBadge}</div>
               <div className="mt-1 text-sm text-ghost">
                 {previewState.error
                   ? previewState.error
-                  : `Article preview loaded in ${previewState.status || 'draft'} mode.`}
+                  : copy.ui.currentPreview(currentStatus)}
               </div>
             </div>
             <div className="font-mono text-xs uppercase tracking-[0.28em] text-mist/75">
-              {previewState.status || 'draft'}
+              {currentStatus}
             </div>
           </div>
         </motion.div>

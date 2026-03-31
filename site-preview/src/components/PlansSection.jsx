@@ -1,11 +1,13 @@
 import { Play } from 'lucide-react';
 import { motion } from 'motion/react';
-import { fallbackExperience } from '../demoContent';
 import { STRAPI_URL } from '../contentUtils';
+import { usePreviewI18n } from '../i18n';
 import SectionHeading from './SectionHeading';
 import { sectionItemVariants, sectionVariants } from './previewMotion';
 
 export default function PlansSection() {
+  const { copy } = usePreviewI18n();
+
   return (
     <motion.section
       className="section-shell"
@@ -15,12 +17,12 @@ export default function PlansSection() {
       variants={sectionVariants}
     >
       <SectionHeading
-        eyebrow="Start now"
-        title="Choose how you want to use the preview in the room."
+        eyebrow={copy.sections.plans.eyebrow}
+        title={copy.sections.plans.title}
         variants={sectionItemVariants}
       />
       <div className="grid gap-6 lg:grid-cols-3">
-        {fallbackExperience.plans.map((plan, index) => (
+        {copy.plans.map((plan, index) => (
           <motion.article
             key={plan.name}
             className={`rounded-[2rem] border p-7 shadow-panel ${
@@ -51,7 +53,7 @@ export default function PlansSection() {
               whileHover={{ y: -3 }}
               whileTap={{ scale: 0.99 }}
             >
-              {plan.featured ? 'Launch the demo flow' : 'Inspect the data'}
+              {plan.featured ? copy.ui.launchDemoFlow : copy.ui.inspectData}
             </motion.a>
           </motion.article>
         ))}

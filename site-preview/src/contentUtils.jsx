@@ -1,12 +1,33 @@
 import React from 'react';
-import { fallbackExperience } from './demoContent';
+import { getFallbackExperience } from './demoContent';
 
 export const STRAPI_URL = import.meta.env.VITE_STRAPI_URL || 'http://localhost:1337';
+
+const cmsEndpoints = {
+  about: '/api/about?populate[blocks][populate]=*',
+  articles:
+    '/api/articles?populate[cover]=true&populate[author][populate]=avatar&populate[category]=true&populate[blocks][populate]=*',
+  categories: '/api/categories',
+  global: '/api/global?populate[logo]=true',
+};
 
 export function toAbsoluteUrl(url) {
   if (!url) return null;
   if (url.startsWith('http')) return url;
   return `${STRAPI_URL}${url}`;
+}
+
+export function withLocale(path, locale) {
+  if (!locale) {
+    return path;
+  }
+
+  const [pathname, query = ''] = path.split('?');
+  const params = new URLSearchParams(query);
+
+  params.set('locale', locale);
+
+  return `${pathname}?${params.toString()}`;
 }
 
 export function pickMediaUrl(media) {
@@ -108,30 +129,48 @@ export function normaliseArticle(article) {
   };
 }
 
-export function buildExperience(payloads) {
+export function buildCmsRequests(locale) {
+  return [
+    fetchJson(withLocale(cmsEndpoints.articles, locale)),
+    fetchJson(withLocale(cmsEndpoints.about, locale)),
+    fetchJson(withLocale(cmsEndpoints.global, locale)),
+    fetchJson(withLocale(cmsEndpoints.categories, locale)),
+  ];
+}
+
+function readCollection(result) {
+  return result?.status === 'fulfilled' && Array.isArray(result.value?.data) && result.value.data.length
+    ? result.value.data
+    : null;
+}
+
+function readSingle(result) {
+  return result?.status === 'fulfilled' && result.value?.data
+    ? result.value.data
+    : null;
+}
+
+export function buildExperience(payloads, locale, fallbackPayloads = null) {
   const [articlesResult, aboutResult, globalResult, categoriesResult] = payloads;
-  const fallback = fallbackExperience.fallbackCms;
-  const liveArticles =
-    articlesResult.status === 'fulfilled'
-      ? (articlesResult.value.data || []).map(normaliseArticle)
-      : [];
-  const liveAbout =
-    aboutResult.status === 'fulfilled' && aboutResult.value.data
-      ? aboutResult.value.data
-      : fallback.about;
-  const liveGlobal =
-    globalResult.status === 'fulfilled' && globalResult.value.data
-      ? globalResult.value.data
-      : fallback.global;
+  const [fallbackArticlesResult, fallbackAboutResult, fallbackGlobalResult, fallbackCategoriesResult] =
+    fallbackPayloads || [];
+  const fallback = getFallbackExperience(locale).fallbackCms;
+
+  const primaryArticles = readCollection(articlesResult)?.map(normaliseArticle) || null;
+  const secondaryArticles = readCollection(fallbackArticlesResult)?.map(normaliseArticle) || null;
+  const liveArticles = primaryArticles || secondaryArticles || fallback.articles;
+
+  const liveAbout = readSingle(aboutResult) || readSingle(fallbackAboutResult) || fallback.about;
+  const liveGlobal = readSingle(globalResult) || readSingle(fallbackGlobalResult) || fallback.global;
   const liveCategories =
-    categoriesResult.status === 'fulfilled' && categoriesResult.value.data?.length
-      ? categoriesResult.value.data
-      : fallback.categories;
+    readCollection(categoriesResult) || readCollection(fallbackCategoriesResult) || fallback.categories;
 
   return {
-    connected: payloads.some((result) => result.status === 'fulfilled'),
-    usingFallback: liveArticles.length === 0,
-    updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    connected:
+      payloads.some((result) => result.status === 'fulfilled') ||
+      fallbackPayloads?.some((result) => result.status === 'fulfilled'),
+    usingFallback: !primaryArticles && !secondaryArticles,
+    updatedAt: new Date().toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit' }),
     global: {
       siteName: liveGlobal.siteName || fallback.global.siteName,
       siteDescription: liveGlobal.siteDescription || fallback.global.siteDescription,

@@ -1,7 +1,8 @@
 import { ArrowRight, Boxes, Database, Gauge, ShieldCheck, Sparkles } from 'lucide-react';
 import { motion } from 'motion/react';
-import { experienceTheme, fallbackExperience } from '../demoContent';
+import { experienceTheme } from '../demoContent';
 import { STRAPI_URL } from '../contentUtils';
+import { usePreviewI18n } from '../i18n';
 import { heroGroupVariants, heroItemVariants, springEase, wordVariants } from './previewMotion';
 
 function WordReveal({ text, className }) {
@@ -28,6 +29,8 @@ export default function HeroSection({
   cmsData,
   statusHighlights,
 }) {
+  const { copy } = usePreviewI18n();
+
   return (
     <section id="top" ref={heroRef} className="relative isolate flex min-h-screen items-end overflow-hidden px-4 pb-12 pt-36 md:px-8 md:pb-16">
       <motion.div className="hero-backdrop" style={{ scale: heroImageScale, y: heroImageY }}>
@@ -48,21 +51,21 @@ export default function HeroSection({
             className="inline-flex items-center gap-3 rounded-full border border-white/10 bg-white/10 px-4 py-2 text-[0.72rem] uppercase tracking-[0.35em] text-mist backdrop-blur-md"
           >
             <Sparkles size={14} className="text-plasma" />
-            Strapi cinematic preview
+            {copy.ui.previewBadge}
           </motion.div>
 
-          <WordReveal text={fallbackExperience.heroLead} className="mt-6 text-5xl font-semibold uppercase tracking-[-0.05em] text-ghost md:text-7xl" />
-          <WordReveal text={fallbackExperience.heroDrama} className="mt-2 font-serif text-[5.6rem] italic leading-none text-ghost md:text-[10rem]" />
+          <WordReveal text={copy.heroLead} className="mt-6 text-5xl font-semibold uppercase tracking-[-0.05em] text-ghost md:text-7xl" />
+          <WordReveal text={copy.heroDrama} className="mt-2 font-serif text-[5.6rem] italic leading-none text-ghost md:text-[10rem]" />
 
           <motion.p variants={heroItemVariants} className="mt-8 max-w-2xl text-base leading-8 text-mist/80 md:text-lg">
-            {fallbackExperience.heroBody}
+            {copy.heroBody}
           </motion.p>
 
           <motion.div variants={heroItemVariants} className="mt-10 flex flex-wrap gap-4">
             <motion.a className="magnetic-button" href="#live-archive" whileHover={{ y: -4, scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <span />
               <span className="relative z-10 flex items-center gap-2">
-                Explore the archive
+                {copy.ui.exploreArchive}
                 <ArrowRight size={16} />
               </span>
             </motion.a>
@@ -74,7 +77,7 @@ export default function HeroSection({
               whileHover={{ y: -4, scale: 1.02 }}
               whileTap={{ scale: 0.99 }}
             >
-              Open Strapi admin
+              {copy.ui.openStrapiAdmin}
             </motion.a>
           </motion.div>
         </motion.div>
@@ -88,9 +91,9 @@ export default function HeroSection({
         >
           <div className="mb-6 flex items-center justify-between">
             <div>
-              <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">System status</div>
+              <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">{copy.ui.systemStatus}</div>
               <div className="mt-2 text-2xl font-semibold text-ghost">
-                {cmsData.connected ? 'Connected to Strapi' : 'Fallback preview active'}
+                {cmsData.connected ? copy.ui.connectedToStrapi : copy.ui.fallbackPreviewActive}
               </div>
             </div>
             <div className="flex items-center gap-2 rounded-full border border-white/10 px-3 py-2 font-mono text-xs text-mist/75">
@@ -103,24 +106,24 @@ export default function HeroSection({
             <div className="stat-card">
               <Database size={18} />
               <strong>{cmsData.articles.length}</strong>
-              <span>Archive entries</span>
+              <span>{copy.ui.archiveEntries}</span>
             </div>
             <div className="stat-card">
               <Boxes size={18} />
               <strong>{cmsData.categories.length}</strong>
-              <span>Navigation groups</span>
+              <span>{copy.ui.navigationGroups}</span>
             </div>
             <div className="stat-card">
               <Gauge size={18} />
-              <strong>{cmsData.usingFallback ? 'Fallback' : 'Live'}</strong>
-              <span>Rendering mode</span>
+              <strong>{cmsData.usingFallback ? copy.ui.fallback : copy.ui.liveSync}</strong>
+              <span>{copy.ui.renderingMode}</span>
             </div>
           </div>
 
           <div className="mt-6 rounded-[1.6rem] border border-white/10 bg-white/5 p-5">
             <div className="mb-3 flex items-center gap-3 text-[0.7rem] uppercase tracking-[0.35em] text-mist/60">
               <ShieldCheck size={16} className="text-plasma" />
-              Operational brief
+              {copy.ui.operationalBrief}
             </div>
             <p className="text-sm leading-7 text-mist/80">{cmsData.global.siteDescription}</p>
           </div>

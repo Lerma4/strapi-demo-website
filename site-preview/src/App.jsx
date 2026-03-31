@@ -11,28 +11,51 @@ import PreviewBackdrop from './components/PreviewBackdrop';
 import PreviewStatusBanner from './components/PreviewStatusBanner';
 import SiteFooter from './components/SiteFooter';
 import ArticleModal from './components/ArticleModal';
-import { fallbackExperience } from './demoContent';
-import { buildExperience, fetchJson, normaliseArticle, STRAPI_URL } from './contentUtils';
+import { UI_DEFAULT_LOCALE, getFallbackExperience } from './demoContent';
+import {
+  buildCmsRequests,
+  buildExperience,
+  fetchJson,
+  normaliseArticle,
+  STRAPI_URL,
+} from './contentUtils';
+import {
+  LOCALE_STORAGE_KEY,
+  PreviewI18nProvider,
+  readRequestedLocale,
+  resolveInstalledLocale,
+} from './i18n';
+
+function createInitialCmsData(locale) {
+  const fallbackCms = getFallbackExperience(locale).fallbackCms;
+
+  return {
+    connected: false,
+    usingFallback: true,
+    updatedAt: '--:--',
+    global: fallbackCms.global,
+    about: fallbackCms.about,
+    categories: fallbackCms.categories,
+    articles: fallbackCms.articles,
+  };
+}
 
 export default function App() {
   const heroRef = useRef(null);
   const manifestoRef = useRef(null);
+  const initialRequestedLocale = readRequestedLocale() || UI_DEFAULT_LOCALE;
   const [compactNav, setCompactNav] = useState(false);
-  const [cmsData, setCmsData] = useState({
-    connected: false,
-    usingFallback: true,
-    updatedAt: '--:--',
-    global: fallbackExperience.fallbackCms.global,
-    about: fallbackExperience.fallbackCms.about,
-    categories: fallbackExperience.fallbackCms.categories,
-    articles: fallbackExperience.fallbackCms.articles,
-  });
+  const [locale, setLocale] = useState(initialRequestedLocale);
+  const [availableLocales, setAvailableLocales] = useState([]);
+  const [cmsData, setCmsData] = useState(() => createInitialCmsData(initialRequestedLocale));
   const [activeArticle, setActiveArticle] = useState(null);
   const [query, setQuery] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [previewState, setPreviewState] = useState({ active: false, status: null, error: '' });
   const deferredQuery = useDeferredValue(query);
   const shouldReduceMotion = useReducedMotion();
+  const localeCopy = getFallbackExperience(locale);
+  const fallbackLocale = availableLocales.find((item) => item.isDefault)?.code || UI_DEFAULT_LOCALE;
 
   const { scrollYProgress: heroProgress } = useScroll({
     target: heroRef,
@@ -76,35 +99,83 @@ export default function App() {
   useEffect(() => {
     let disposed = false;
 
+    fetchJson('/api/site-locales')
+      .then((payload) => {
+        if (disposed) {
+          return;
+        }
+
+        const locales = Array.isArray(payload.data) ? payload.data : [];
+
+        startTransition(() => {
+          setAvailableLocales(locales);
+          setLocale((current) => resolveInstalledLocale(current, locales));
+        });
+      })
+      .catch(() => {
+        if (disposed) {
+          return;
+        }
+
+        startTransition(() => {
+          setAvailableLocales([]);
+        });
+      });
+
+    return () => {
+      disposed = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    document.documentElement.lang = locale;
+
+    window.localStorage.setItem(LOCALE_STORAGE_KEY, locale);
+
+    const url = new URL(window.location.href);
+
+    if (locale === fallbackLocale) {
+      url.searchParams.delete('lang');
+    } else {
+      url.searchParams.set('lang', locale);
+    }
+
+    window.history.replaceState({}, '', url);
+  }, [fallbackLocale, locale]);
+
+  useEffect(() => {
+    let disposed = false;
+
     async function loadContent() {
-      const requests = await Promise.allSettled([
-        fetchJson('/api/articles?populate[cover]=true&populate[author][populate]=avatar&populate[category]=true&populate[blocks][populate]=*'),
-        fetchJson('/api/about?populate[blocks][populate]=*'),
-        fetchJson('/api/global?populate[logo]=true'),
-        fetchJson('/api/categories'),
-      ]);
+      const requests = await Promise.allSettled(buildCmsRequests(locale));
+      const fallbackRequests =
+        locale !== fallbackLocale
+          ? await Promise.allSettled(buildCmsRequests(fallbackLocale))
+          : null;
 
       if (disposed) return;
 
       startTransition(() => {
-        setCmsData(buildExperience(requests));
+        setCmsData(buildExperience(requests, locale, fallbackRequests));
       });
     }
+
+    startTransition(() => {
+      setCmsData(createInitialCmsData(locale));
+      setActiveArticle(null);
+    });
 
     loadContent().catch(() => {
       if (disposed) return;
       startTransition(() => {
-        setCmsData((current) => ({
-          ...current,
-          updatedAt: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-        }));
+        setCmsData(createInitialCmsData(locale));
       });
     });
 
     return () => {
       disposed = true;
     };
-  }, []);
+  }, [fallbackLocale, locale]);
 
   useEffect(() => {
     let disposed = false;
@@ -121,12 +192,14 @@ export default function App() {
     });
 
     const previewQuery = new URLSearchParams();
-    ['documentId', 'locale', 'status', 'signature', 'expires', 'uid'].forEach((key) => {
+    ['documentId', 'status', 'signature', 'expires', 'uid'].forEach((key) => {
       const value = params.get(key);
       if (value) {
         previewQuery.set(key, value);
       }
     });
+
+    previewQuery.set('locale', params.get('locale') || locale);
 
     fetch(`${STRAPI_URL}/api/preview/article?${previewQuery.toString()}`)
       .then(async (response) => {
@@ -143,19 +216,19 @@ export default function App() {
         if (disposed) return;
         setPreviewState((current) => ({
           ...current,
-          error: 'Preview article could not be loaded. Check preview secret, URL and document status.',
+          error: localeCopy.ui.previewError,
         }));
       });
 
     return () => {
       disposed = true;
     };
-  }, []);
+  }, [locale, localeCopy.ui.previewError]);
 
   useEffect(() => {
-    const title = cmsData.global.siteName || fallbackExperience.fallbackCms.global.siteName;
+    const title = cmsData.global.siteName || localeCopy.fallbackCms.global.siteName;
     const description =
-      cmsData.global.siteDescription || fallbackExperience.fallbackCms.global.siteDescription;
+      cmsData.global.siteDescription || localeCopy.fallbackCms.global.siteDescription;
 
     document.title = title;
 
@@ -166,69 +239,82 @@ export default function App() {
       document.head.appendChild(descriptionTag);
     }
     descriptionTag.setAttribute('content', description);
-  }, [cmsData.global.siteDescription, cmsData.global.siteName]);
+  }, [cmsData.global.siteDescription, cmsData.global.siteName, localeCopy.fallbackCms.global.siteDescription, localeCopy.fallbackCms.global.siteName]);
 
   const filteredArticles = cmsData.articles.filter((article) => {
     const matchesCategory =
       selectedCategory === 'all' ||
       article.category?.slug === selectedCategory ||
       article.category?.name === selectedCategory;
-    const target = `${article.title} ${article.description} ${article.author?.name || ''}`.toLowerCase();
+    const target = `${article.title} ${article.description} ${
+      article.author?.name || localeCopy.ui.authorFallback
+    }`.toLowerCase();
     return matchesCategory && target.includes(deferredQuery.trim().toLowerCase());
   });
 
   const statusHighlights = [
-    { label: 'Preview layer', value: cmsData.connected ? 'Live sync' : 'Fallback' },
-    { label: 'Archive', value: `${cmsData.articles.length} entries` },
-    { label: 'Mode', value: cmsData.usingFallback ? 'Cinematic demo' : 'API-backed' },
+    {
+      label: localeCopy.ui.previewLayer,
+      value: cmsData.connected ? localeCopy.ui.liveSync : localeCopy.ui.fallback,
+    },
+    {
+      label: localeCopy.ui.archiveFallback,
+      value: localeCopy.ui.visibleEntries(cmsData.articles.length),
+    },
+    {
+      label: localeCopy.ui.mode,
+      value: cmsData.usingFallback ? localeCopy.ui.cinematicDemo : localeCopy.ui.apiBacked,
+    },
   ];
 
   return (
-    <div className="app-shell">
-      <PreviewBackdrop orbOneY={orbOneY} orbTwoY={orbTwoY} />
+    <PreviewI18nProvider locale={locale} locales={availableLocales} setLocale={setLocale}>
+      <div className="app-shell">
+        <PreviewBackdrop orbOneY={orbOneY} orbTwoY={orbTwoY} />
 
-      <FloatingNav
-        compact={compactNav}
-        siteName={cmsData.global.siteName}
-        logoUrl={cmsData.global.logo?.url}
-        articlesCount={cmsData.articles.length}
-      />
-      <PreviewStatusBanner previewState={previewState} />
+        <FloatingNav
+          compact={compactNav}
+          siteName={cmsData.global.siteName}
+          logoUrl={cmsData.global.logo?.url}
+          articlesCount={cmsData.articles.length}
+        />
+        <PreviewStatusBanner previewState={previewState} />
 
-      <main>
-        <HeroSection
-          heroRef={heroRef}
-          heroImageScale={heroImageScale}
-          heroImageY={heroImageY}
-          heroPanelY={heroPanelY}
-          heroPanelRotate={heroPanelRotate}
-          shouldReduceMotion={shouldReduceMotion}
-          cmsData={cmsData}
-          statusHighlights={statusHighlights}
-        />
-        <CapabilitiesSection />
-        <ManifestoSection
-          manifestoRef={manifestoRef}
-          manifestoImageY={manifestoImageY}
-          manifestoImageScale={manifestoImageScale}
-          cmsData={cmsData}
-        />
-        <ProtocolSection />
-        <LiveArchiveSection
-          query={query}
-          onQueryChange={setQuery}
-          selectedCategory={selectedCategory}
-          onCategoryChange={setSelectedCategory}
-          categories={cmsData.categories}
-          filteredArticles={filteredArticles}
-          shouldReduceMotion={shouldReduceMotion}
-          onOpenArticle={setActiveArticle}
-        />
-        <PlansSection />
-      </main>
+        <main>
+          <HeroSection
+            heroRef={heroRef}
+            heroImageScale={heroImageScale}
+            heroImageY={heroImageY}
+            heroPanelY={heroPanelY}
+            heroPanelRotate={heroPanelRotate}
+            shouldReduceMotion={shouldReduceMotion}
+            cmsData={cmsData}
+            statusHighlights={statusHighlights}
+          />
+          <CapabilitiesSection />
+          <ManifestoSection
+            manifestoRef={manifestoRef}
+            manifestoImageY={manifestoImageY}
+            manifestoImageScale={manifestoImageScale}
+            cmsData={cmsData}
+          />
+          <ProtocolSection />
+          <LiveArchiveSection
+            query={query}
+            onQueryChange={setQuery}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            categories={cmsData.categories}
+            filteredArticles={filteredArticles}
+            shouldReduceMotion={shouldReduceMotion}
+            onOpenArticle={setActiveArticle}
+          />
+          <PlansSection />
+        </main>
 
-      <SiteFooter />
-      <ArticleModal article={activeArticle} onClose={() => setActiveArticle(null)} />
-    </div>
+        <SiteFooter />
+        <ArticleModal article={activeArticle} onClose={() => setActiveArticle(null)} />
+      </div>
+    </PreviewI18nProvider>
   );
 }

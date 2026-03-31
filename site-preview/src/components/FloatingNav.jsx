@@ -1,22 +1,21 @@
-import { useEffect, useState } from 'react';
-import { ArrowRight, Menu, Orbit, X } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
+import { ArrowRight, ChevronDown, Menu, Orbit, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
-import { fallbackExperience } from '../demoContent';
+import { usePreviewI18n } from '../i18n';
+import { getLocaleFlag, getLocaleFlagSrc } from '../demoContent';
 import { springEase } from './previewMotion';
 
-function getNavHref(item) {
-  if (item.toLowerCase() === 'archive') {
-    return '#live-archive';
-  }
+const navTargets = ['#capabilities', '#manifesto', '#protocol', '#live-archive'];
 
-  return `#${item.toLowerCase().replace(/\s+/g, '-')}`;
+function getNavHref(index) {
+  return navTargets[index] || '#top';
 }
 
 function BrandLockup({ compact, siteName, logoUrl, inverse = false, onClick }) {
   return (
     <motion.a
       href="#top"
-      aria-label={`Go to ${siteName} homepage`}
+      aria-label={siteName}
       onClick={onClick}
       className="group flex min-w-0 items-center gap-3"
       whileHover={{ y: -2 }}
@@ -63,8 +62,147 @@ function BrandLockup({ compact, siteName, logoUrl, inverse = false, onClick }) {
   );
 }
 
+function LocaleSwitcher({ currentLocale, locales, onLocaleChange, onSelect, mobile = false }) {
+  const [isOpen, setIsOpen] = useState(false);
+  const rootRef = useRef(null);
+  const hasMultipleLocales = Array.isArray(locales) && locales.length > 1;
+
+  const currentItem = hasMultipleLocales
+    ? locales.find((item) => item.code === currentLocale) || locales[0]
+    : null;
+
+  useEffect(() => {
+    if (!hasMultipleLocales || !isOpen) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      if (!rootRef.current?.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+
+    const handleKeyDown = (event) => {
+      if (event.key === 'Escape') {
+        setIsOpen(false);
+      }
+    };
+
+    window.addEventListener('pointerdown', handlePointerDown);
+    window.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown);
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [hasMultipleLocales, isOpen]);
+
+  if (!hasMultipleLocales || !currentItem) {
+    return null;
+  }
+
+  return (
+    <div ref={rootRef} className={`relative ${mobile ? 'w-full' : 'shrink-0'}`}>
+      <button
+        type="button"
+        aria-expanded={isOpen}
+        aria-label={currentItem.name}
+        className={`flex h-11 items-center gap-2 rounded-full border px-3 text-sm transition duration-300 ease-magnetic ${
+          mobile
+            ? 'w-full justify-between border-white/12 bg-white/5 text-ghost/92'
+            : 'border-white/12 bg-white/5 text-ghost/92 hover:border-plasma/30'
+        }`}
+        onClick={() => setIsOpen((open) => !open)}
+      >
+        <FlagAvatar
+          localeCode={currentItem.code}
+          localeName={currentItem.name}
+          size={mobile ? 'md' : 'sm'}
+        />
+        {mobile ? (
+          <span className="min-w-0 truncate text-sm font-medium">{currentItem.name}</span>
+        ) : null}
+        <ChevronDown
+          size={16}
+          className={`text-mist/70 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+        />
+      </button>
+
+      <AnimatePresence>
+        {isOpen ? (
+          <motion.div
+            className={`absolute z-[80] mt-3 overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#121222]/96 shadow-[0_22px_70px_rgba(5,6,12,0.45)] backdrop-blur-xl ${
+              mobile ? 'left-0 right-0' : 'right-0 min-w-[15rem]'
+            }`}
+            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: springEase }}
+          >
+            <div className="max-h-80 overflow-y-auto p-2">
+              {locales.map((item) => (
+                <button
+                  key={item.code}
+                  type="button"
+                  onClick={() => {
+                    onLocaleChange(item.code);
+                    setIsOpen(false);
+                    onSelect?.();
+                  }}
+                  aria-pressed={item.code === currentLocale}
+                  className={`flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm transition duration-200 ${
+                    item.code === currentLocale
+                      ? 'bg-plasma text-ghost'
+                      : 'text-ghost/88 hover:bg-white/6'
+                  }`}
+                >
+                  <FlagAvatar localeCode={item.code} localeName={item.name} />
+                  <span className="min-w-0 flex-1 truncate font-medium">{item.name}</span>
+                  <span className={`text-[0.68rem] uppercase tracking-[0.2em] ${
+                    item.code === currentLocale ? 'text-ghost/72' : 'text-mist/55'
+                  }`}>
+                    {item.code}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+function FlagAvatar({ localeCode, localeName, size = 'md', className = '' }) {
+  const src = getLocaleFlagSrc(localeCode);
+  const fallback = getLocaleFlag(localeCode);
+  const dimensions = size === 'sm' ? 'h-7 w-7' : 'h-8 w-8';
+
+  return (
+    <span
+      className={`relative inline-flex overflow-hidden rounded-full border border-white/12 bg-[#0f1020] shadow-[0_8px_20px_rgba(5,6,12,0.24)] ${dimensions} ${className}`.trim()}
+      aria-hidden="true"
+      title={localeName}
+    >
+      {src ? (
+        <img
+          src={src}
+          alt=""
+          className="h-full w-full object-cover"
+          loading="lazy"
+        />
+      ) : (
+        <span className="flex h-full w-full items-center justify-center text-sm leading-none">
+          {fallback}
+        </span>
+      )}
+    </span>
+  );
+}
+
 export default function FloatingNav({ compact, siteName, logoUrl, articlesCount }) {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { copy, locale, locales, setLocale } = usePreviewI18n();
 
   useEffect(() => {
     if (!isMenuOpen) {
@@ -118,11 +256,11 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
       >
         <BrandLockup compact={compact} siteName={siteName} logoUrl={logoUrl} onClick={() => setIsMenuOpen(false)} />
         <nav className="hidden items-center gap-6 text-sm md:flex">
-          {fallbackExperience.nav.map((item) => (
+          {copy.nav.map((item, index) => (
             <motion.a
               key={item}
               className="nav-link"
-              href={getNavHref(item)}
+              href={getNavHref(index)}
               whileHover={{ y: -2 }}
               transition={{ type: 'spring', stiffness: 320, damping: 20 }}
             >
@@ -130,6 +268,13 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
             </motion.a>
           ))}
         </nav>
+        <div className="hidden items-center gap-4 md:flex">
+          <LocaleSwitcher
+            currentLocale={locale}
+            locales={locales}
+            onLocaleChange={setLocale}
+          />
+        </div>
         <motion.a
           className="magnetic-button hidden md:inline-flex"
           href="#live-archive"
@@ -138,7 +283,7 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
         >
           <span />
           <span className="relative z-10 flex items-center gap-2">
-            Open archive
+            {copy.ui.openArchive}
             <ArrowRight size={16} />
           </span>
         </motion.a>
@@ -199,8 +344,18 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
                     onClick={() => setIsMenuOpen(false)}
                   />
                   <div className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-[0.65rem] font-medium uppercase tracking-[0.28em] text-mist/70">
-                    Mobile nav
+                    {copy.ui.mobileNav}
                   </div>
+                </div>
+
+                <div className="mt-6">
+                  <LocaleSwitcher
+                    currentLocale={locale}
+                    locales={locales}
+                    onLocaleChange={setLocale}
+                    mobile
+                    onSelect={() => setIsMenuOpen(false)}
+                  />
                 </div>
 
                 <motion.nav
@@ -217,10 +372,10 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
                     },
                   }}
                 >
-                  {fallbackExperience.nav.map((item) => (
+                  {copy.nav.map((item, index) => (
                     <motion.a
                       key={item}
-                      href={getNavHref(item)}
+                      href={getNavHref(index)}
                       className="group flex items-center justify-between border-b border-white/10 py-4 text-[1.05rem] font-medium tracking-[-0.02em]"
                       variants={{
                         hidden: { opacity: 0, y: 16 },
@@ -246,15 +401,19 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
                 >
                   <div className="flex items-center justify-between gap-3">
                     <div>
-                      <div className="text-[0.64rem] uppercase tracking-[0.32em] text-mist/60">Live archive</div>
-                      <div className="mt-2 text-lg font-semibold">{articlesCount} visible entries</div>
+                      <div className="text-[0.64rem] uppercase tracking-[0.32em] text-mist/60">
+                        {copy.sections.archive.eyebrow}
+                      </div>
+                      <div className="mt-2 text-lg font-semibold">
+                        {copy.ui.visibleEntries(articlesCount)}
+                      </div>
                     </div>
                     <div className="flex h-12 w-12 items-center justify-center rounded-full bg-plasma text-ghost shadow-[0_16px_30px_rgba(10,10,20,0.22)]">
                       <Orbit size={18} />
                     </div>
                   </div>
                   <p className="mt-4 max-w-xs text-sm leading-6 text-mist/72">
-                    Jump straight into the archive or scan the publishing journey section by section.
+                    {copy.ui.mobileArchiveHint}
                   </p>
                 </motion.div>
 
@@ -266,7 +425,7 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
                   transition={{ duration: 0.28, delay: 0.24, ease: springEase }}
                   onClick={() => setIsMenuOpen(false)}
                 >
-                  Open archive
+                  {copy.ui.openArchive}
                   <ArrowRight size={18} />
                 </motion.a>
               </div>

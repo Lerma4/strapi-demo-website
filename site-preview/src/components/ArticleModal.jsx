@@ -2,10 +2,13 @@ import { useEffect } from 'react';
 import { X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { renderRichText } from '../contentUtils';
+import { usePreviewI18n } from '../i18n';
 
 const springEase = [0.22, 1, 0.36, 1];
 
 export default function ArticleModal({ article, onClose }) {
+  const { copy } = usePreviewI18n();
+
   useEffect(() => {
     if (!article) return undefined;
 
@@ -46,7 +49,7 @@ export default function ArticleModal({ article, onClose }) {
             <div className="flex items-center justify-between border-b border-white/10 px-6 py-5">
               <div>
                 <div className="text-[0.68rem] uppercase tracking-[0.35em] text-plasma">
-                  {article.category?.name || 'Archive'}
+                  {article.category?.name || copy.ui.archiveFallback}
                 </div>
                 <h3 className="mt-2 text-2xl font-semibold text-ghost">{article.title}</h3>
               </div>
@@ -72,8 +75,8 @@ export default function ArticleModal({ article, onClose }) {
                 />
               )}
               <div className="mb-8 flex flex-wrap gap-3 text-xs uppercase tracking-[0.3em] text-mist/60">
-                <span>{article.author?.name || 'Northstar Team'}</span>
-                <span>{article.category?.name || 'general'}</span>
+                <span>{article.author?.name || copy.ui.authorFallback}</span>
+                <span>{article.category?.name || copy.ui.categoryFallback}</span>
               </div>
               <div className="space-y-6">
                 {(article.blocks || []).map((block, index) => {

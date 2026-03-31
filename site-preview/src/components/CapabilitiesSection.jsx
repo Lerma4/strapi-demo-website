@@ -1,9 +1,12 @@
 import { motion } from 'motion/react';
+import { usePreviewI18n } from '../i18n';
 import { DiagnosticShuffler, SchedulerCard, TelemetryTypewriter } from './FeatureArtifacts';
 import SectionHeading from './SectionHeading';
 import { sectionItemVariants, sectionVariants } from './previewMotion';
 
 export default function CapabilitiesSection() {
+  const { copy } = usePreviewI18n();
+
   return (
     <motion.section
       id="capabilities"
@@ -14,8 +17,8 @@ export default function CapabilitiesSection() {
       variants={sectionVariants}
     >
       <SectionHeading
-        eyebrow="Capabilities"
-        title="Interactive functional artifacts for explaining Strapi without showing a dashboard first."
+        eyebrow={copy.sections.capabilities.eyebrow}
+        title={copy.sections.capabilities.title}
         variants={sectionItemVariants}
       />
       <div className="grid gap-6 lg:grid-cols-3">

@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Activity, CalendarRange, Layers3 } from 'lucide-react';
 import { motion, useReducedMotion } from 'motion/react';
-import { fallbackExperience } from '../demoContent';
+import { usePreviewI18n } from '../i18n';
 
 const springEase = [0.22, 1, 0.36, 1];
 
@@ -22,8 +22,13 @@ const revealProps = {
 };
 
 export function DiagnosticShuffler() {
-  const [cards, setCards] = useState(fallbackExperience.featureCards.shuffler.labels);
+  const { copy } = usePreviewI18n();
+  const [cards, setCards] = useState(copy.featureCards.shuffler.labels);
   const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    setCards(copy.featureCards.shuffler.labels);
+  }, [copy.featureCards.shuffler.labels]);
 
   useEffect(() => {
     const timer = window.setInterval(() => {
@@ -45,9 +50,9 @@ export function DiagnosticShuffler() {
     >
       <div className="artifact-head">
         <Layers3 size={18} />
-        <span>{fallbackExperience.featureCards.shuffler.title}</span>
+        <span>{copy.featureCards.shuffler.title}</span>
       </div>
-      <p className="artifact-copy">{fallbackExperience.featureCards.shuffler.description}</p>
+      <p className="artifact-copy">{copy.featureCards.shuffler.description}</p>
       <div className="relative mt-8 h-56">
         {cards.map((label, index) => (
           <motion.div
@@ -74,10 +79,16 @@ export function DiagnosticShuffler() {
 }
 
 export function TelemetryTypewriter() {
-  const messages = fallbackExperience.featureCards.typewriter.messages;
+  const { copy } = usePreviewI18n();
+  const messages = copy.featureCards.typewriter.messages;
   const [messageIndex, setMessageIndex] = useState(0);
   const [typed, setTyped] = useState('');
   const shouldReduceMotion = useReducedMotion();
+
+  useEffect(() => {
+    setTyped('');
+    setMessageIndex(0);
+  }, [messages]);
 
   useEffect(() => {
     let pointer = 0;
@@ -105,9 +116,9 @@ export function TelemetryTypewriter() {
     >
       <div className="artifact-head">
         <Activity size={18} />
-        <span>{fallbackExperience.featureCards.typewriter.title}</span>
+        <span>{copy.featureCards.typewriter.title}</span>
       </div>
-      <p className="artifact-copy">{fallbackExperience.featureCards.typewriter.description}</p>
+      <p className="artifact-copy">{copy.featureCards.typewriter.description}</p>
       <motion.div
         className="mt-8 rounded-[1.8rem] border border-white/10 bg-[#111124] p-5 font-mono text-sm text-ghost/90"
         whileHover={{ scale: 1.01 }}
@@ -117,7 +128,7 @@ export function TelemetryTypewriter() {
             <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-plasma opacity-75" />
             <span className="relative inline-flex h-2.5 w-2.5 rounded-full bg-plasma" />
           </span>
-          Live feed
+          {copy.ui.liveFeed}
         </div>
         <div className="min-h-24 leading-7">
           {typed}
@@ -133,13 +144,13 @@ export function TelemetryTypewriter() {
 }
 
 export function SchedulerCard() {
+  const { copy } = usePreviewI18n();
   const containerRef = useRef(null);
   const saveRef = useRef(null);
   const dayRefs = useRef([]);
   const [activeDays, setActiveDays] = useState([]);
   const [cursorState, setCursorState] = useState({ x: 20, y: 20, opacity: 1, scale: 1 });
   const shouldReduceMotion = useReducedMotion();
-
   const [stepIndex, setStepIndex] = useState(0);
 
   useEffect(() => {
@@ -227,9 +238,9 @@ export function SchedulerCard() {
     >
       <div className="artifact-head">
         <CalendarRange size={18} />
-        <span>{fallbackExperience.featureCards.scheduler.title}</span>
+        <span>{copy.featureCards.scheduler.title}</span>
       </div>
-      <p className="artifact-copy">{fallbackExperience.featureCards.scheduler.description}</p>
+      <p className="artifact-copy">{copy.featureCards.scheduler.description}</p>
       <div ref={containerRef} className="relative mt-8 rounded-[1.8rem] border border-white/10 bg-[#111124] p-5">
         <motion.div
           className="scheduler-cursor"
@@ -263,7 +274,7 @@ export function SchedulerCard() {
         </div>
         <div className="mt-5 flex items-center justify-between">
           <div className="text-xs uppercase tracking-[0.3em] text-mist/60">
-            {fallbackExperience.featureCards.scheduler.caption}
+            {copy.featureCards.scheduler.caption}
           </div>
           <motion.button
             ref={saveRef}
@@ -273,7 +284,7 @@ export function SchedulerCard() {
             }}
           >
             <span />
-            <span className="relative z-10">Save</span>
+            <span className="relative z-10">{copy.ui.save}</span>
           </motion.button>
         </div>
       </div>

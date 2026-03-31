@@ -1,6 +1,7 @@
 import { ArrowRight } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { experienceTheme } from '../demoContent';
+import { usePreviewI18n } from '../i18n';
 import SectionHeading from './SectionHeading';
 import { sectionItemVariants, sectionVariants, springEase } from './previewMotion';
 
@@ -14,6 +15,8 @@ export default function LiveArchiveSection({
   shouldReduceMotion,
   onOpenArticle,
 }) {
+  const { copy } = usePreviewI18n();
+
   return (
     <motion.section
       id="live-archive"
@@ -24,17 +27,17 @@ export default function LiveArchiveSection({
       variants={sectionVariants}
     >
       <SectionHeading
-        eyebrow="Live archive"
-        title="One polished surface for client demos, editorial reviews and API-driven content checks."
+        eyebrow={copy.sections.archive.eyebrow}
+        title={copy.sections.archive.title}
         variants={sectionItemVariants}
       />
       <motion.div className="mb-8 grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center" variants={sectionItemVariants}>
         <div className="rounded-[1.8rem] border border-white/10 bg-white/5 p-4 shadow-panel">
-          <label className="text-[0.68rem] uppercase tracking-[0.35em] text-mist/60">Search archive</label>
+          <label className="text-[0.68rem] uppercase tracking-[0.35em] text-mist/60">{copy.ui.searchArchive}</label>
           <input
             value={query}
             onChange={(event) => onQueryChange(event.target.value)}
-            placeholder="Search titles, descriptions or authors"
+            placeholder={copy.ui.searchPlaceholder}
             className="mt-3 w-full bg-transparent text-base text-ghost outline-none placeholder:text-mist/40"
           />
         </div>
@@ -44,7 +47,7 @@ export default function LiveArchiveSection({
             onClick={() => onCategoryChange('all')}
             className={`filter-pill ${selectedCategory === 'all' ? 'filter-pill-active' : ''}`}
           >
-            All
+            {copy.ui.allCategories}
           </button>
           {categories.map((category) => (
             <button
@@ -87,8 +90,8 @@ export default function LiveArchiveSection({
               />
               <div className="archive-card-body">
                 <div className="flex items-center justify-between text-[0.68rem] uppercase tracking-[0.3em] text-mist/60">
-                  <span>{article.category?.name || 'general'}</span>
-                  <span>{article.author?.name || 'Northstar Team'}</span>
+                  <span>{article.category?.name || copy.ui.categoryFallback}</span>
+                  <span>{article.author?.name || copy.ui.authorFallback}</span>
                 </div>
                 <h3 className="mt-5 text-2xl font-semibold text-ghost">{article.title}</h3>
                 <p className="mt-4 text-sm leading-7 text-mist/75">{article.description}</p>
@@ -99,7 +102,7 @@ export default function LiveArchiveSection({
                   whileHover={{ x: 4 }}
                   whileTap={{ scale: 0.98 }}
                 >
-                  Open content detail
+                  {copy.ui.openContentDetail}
                   <ArrowRight size={15} />
                 </motion.button>
               </div>
@@ -116,7 +119,7 @@ export default function LiveArchiveSection({
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 12 }}
           >
-            No archive entries match the current filters.
+            {copy.ui.noArchiveEntries}
           </motion.div>
         )}
       </AnimatePresence>
