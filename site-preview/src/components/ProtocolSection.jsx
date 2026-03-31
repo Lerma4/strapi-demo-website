@@ -53,67 +53,88 @@ function ProtocolVisual({ index, shouldReduceMotion }) {
   );
 }
 
-function ProtocolStage({ item, index, stageRef, nextStageRef }) {
+function ProtocolStage({ item, index, total, stageRef }) {
   const shouldReduceMotion = useReducedMotion();
   const { copy } = usePreviewI18n();
+
+  // Scroll tracked against this specific card to trigger its scaling and darkening
+  // "start start" means when this card hits the top of the viewport (roughly when it sticks).
+  // "end start" means when the next element (after the 60vh margin) reaches the top.
+  const { scrollYProgress: recedeProgress } = useScroll({
+    target: stageRef,
+    offset: ['start 10%', 'end start'],
+  });
+
   const { scrollYProgress: entryProgress } = useScroll({
     target: stageRef,
-    offset: ['start 86%', 'start 28%'],
-  });
-  const { scrollYProgress: nextProgress } = useScroll({
-    target: nextStageRef || stageRef,
-    offset: ['start 76%', 'start 20%'],
+    offset: ['start 90%', 'start 30%'],
   });
 
-  const y = useTransform(entryProgress, [0, 1], shouldReduceMotion ? [0, 0] : [88, 0]);
-  const entryOpacity = useTransform(entryProgress, [0, 1], [0.35, 1]);
-  const scale = nextStageRef
-    ? useTransform(nextProgress, [0, 1], shouldReduceMotion ? [1, 1] : [1, 0.92])
-    : 1;
-  const fadedOpacity = nextStageRef
-    ? useTransform(nextProgress, [0, 1], [1, 0.55])
-    : entryOpacity;
-  const blur = useTransform(nextProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 18]);
+  const entryY = useTransform(entryProgress, [0, 1], shouldReduceMotion ? [0, 0] : [100, 0]);
+  const entryOpacity = useTransform(entryProgress, [0, 1], [0.1, 1]);
+
+  const scale = useTransform(recedeProgress, [0, 1], shouldReduceMotion ? [1, 1] : [1, 0.90]);
+  const blur = useTransform(recedeProgress, [0, 1], shouldReduceMotion ? [0, 0] : [0, 8]);
   const filter = useMotionTemplate`blur(${blur}px)`;
+  
+  const overlayOpacity = useTransform(recedeProgress, [0, 1], [0, 0.65]);
+
+  const dynamicTop = `calc(12vh + ${index * 3}vh)`;
+
+  // Add margin-bottom so that scrolling continues while this card is stuck,
+  // pushing the next card down so it reveals gradually.
+  // The last card doesn't need huge margin-bottom unless we want it to stay stuck longer.
+  const isLast = index === total - 1;
 
   return (
-    <div ref={stageRef} className="protocol-stage">
-      <motion.article
-        className="protocol-card"
-        style={{
-          y,
-          scale,
-          opacity: fadedOpacity,
-          filter: nextStageRef ? filter : 'none',
-        }}
-      >
-        <div className="grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
-          <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ duration: 0.7, ease: springEase }}
-          >
-            <div className="mb-4 font-mono text-sm uppercase tracking-[0.35em] text-plasma">
-              {copy.ui.stepLabel(item.step)}
-            </div>
-            <h3 className="text-3xl font-semibold text-ghost md:text-5xl">{item.title}</h3>
-            <p className="mt-6 max-w-xl text-base leading-8 text-mist/75 md:text-lg">
-              {item.description}
-            </p>
-          </motion.div>
-          <motion.div
-            className="protocol-visual"
-            initial={{ opacity: 0, scale: 0.94 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true, amount: 0.35 }}
-            transition={{ duration: 0.75, ease: springEase }}
-          >
-            <ProtocolVisual index={index} shouldReduceMotion={shouldReduceMotion} />
-          </motion.div>
-        </div>
-      </motion.article>
-    </div>
+    <motion.article
+      ref={stageRef}
+      className="protocol-card overflow-hidden shadow-2xl"
+      style={{
+        y: entryY,
+        opacity: entryOpacity,
+        scale,
+        filter,
+        top: dynamicTop,
+        transformOrigin: 'top center',
+        zIndex: index,
+        position: 'sticky',
+        // Rimuoviamo il marginBottom esagerato per farle stare vicine
+        // Così la carta successiva inizia subito sotto e scorre sopra immediatamente
+        marginBottom: isLast ? '0' : '5vh',
+      }}
+    >
+      <motion.div 
+        className="absolute inset-0 bg-[#06060c] pointer-events-none rounded-[2.5rem]"
+        style={{ opacity: overlayOpacity, zIndex: 10 }}
+      />
+
+      <div className="relative z-0 grid gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+        <motion.div
+          initial={{ opacity: 0, x: -24 }}
+          whileInView={{ opacity: 1, x: 0 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.7, ease: springEase }}
+        >
+          <div className="mb-4 font-mono text-sm uppercase tracking-[0.35em] text-plasma">
+            {copy.ui.stepLabel(item.step)}
+          </div>
+          <h3 className="text-3xl font-semibold text-ghost md:text-5xl lg:text-5xl">{item.title}</h3>
+          <p className="mt-6 max-w-xl text-base leading-8 text-mist/75 md:text-lg">
+            {item.description}
+          </p>
+        </motion.div>
+        <motion.div
+          className="protocol-visual"
+          initial={{ opacity: 0, scale: 0.94 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true, amount: 0.35 }}
+          transition={{ duration: 0.75, ease: springEase }}
+        >
+          <ProtocolVisual index={index} shouldReduceMotion={shouldReduceMotion} />
+        </motion.div>
+      </div>
+    </motion.article>
   );
 }
 
@@ -126,7 +147,7 @@ export default function ProtocolSection() {
   );
 
   return (
-    <section id="protocol" ref={sectionRef} className="section-shell">
+    <section id="protocol" ref={sectionRef} className="section-shell relative">
       <SectionHeading
         eyebrow={copy.sections.protocol.eyebrow}
         title={copy.sections.protocol.title}
@@ -135,14 +156,15 @@ export default function ProtocolSection() {
         viewport={{ once: true, amount: 0.2 }}
         transition={{ duration: 0.8, ease: springEase }}
       />
-      <div className="space-y-20">
+      
+      <div className="relative pb-32 pt-8">
         {copy.protocol.map((item, index) => (
           <ProtocolStage
             key={item.step}
             item={item}
             index={index}
+            total={copy.protocol.length}
             stageRef={stageRefs[index]}
-            nextStageRef={stageRefs[index + 1]}
           />
         ))}
       </div>

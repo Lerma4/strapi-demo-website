@@ -13,6 +13,7 @@
     "preview:build": "npm --prefix site-preview run build",
     "preview:dev": "npm --prefix site-preview run dev",
     "preview:install": "npm --prefix site-preview install",
+    "seed:articles:i18n": "node ./scripts/seed-bilingual-articles.js",
     "seed:example": "node ./scripts/seed.js",
     "seed:test:articles": "node ./scripts/seed-test-articles.js",
     "setup": "npm install && npm run preview:install",
