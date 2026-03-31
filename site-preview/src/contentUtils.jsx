@@ -17,6 +17,24 @@ export function toAbsoluteUrl(url) {
   return `${STRAPI_URL}${url}`;
 }
 
+function unwrapMediaEntity(media) {
+  if (!media) return null;
+
+  if (Array.isArray(media)) {
+    return unwrapMediaEntity(media[0]);
+  }
+
+  if (media.data) {
+    return unwrapMediaEntity(media.data);
+  }
+
+  if (media.attributes) {
+    return unwrapMediaEntity(media.attributes);
+  }
+
+  return media;
+}
+
 export function withLocale(path, locale) {
   if (!locale) {
     return path;
@@ -31,15 +49,16 @@ export function withLocale(path, locale) {
 }
 
 export function pickMediaUrl(media) {
-  if (!media) return null;
-  if (Array.isArray(media)) return pickMediaUrl(media[0]);
+  const entity = unwrapMediaEntity(media);
+  if (!entity) return null;
+
   const preferred =
-    media?.formats?.large?.url ||
-    media?.formats?.medium?.url ||
-    media?.formats?.small?.url ||
-    media?.formats?.thumbnail?.url ||
-    media?.url ||
-    media?.file?.url;
+    entity?.formats?.large?.url ||
+    entity?.formats?.medium?.url ||
+    entity?.formats?.small?.url ||
+    entity?.formats?.thumbnail?.url ||
+    entity?.url ||
+    entity?.file?.url;
   return toAbsoluteUrl(preferred);
 }
 

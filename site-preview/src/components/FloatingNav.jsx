@@ -62,7 +62,7 @@ function BrandLockup({ compact, siteName, logoUrl, inverse = false, onClick }) {
   );
 }
 
-function LocaleSwitcher({ currentLocale, locales, onLocaleChange, onSelect, mobile = false }) {
+function LocaleSwitcher({ currentLocale, locales, onLocaleChange, onSelect, mobile = false, compact = false }) {
   const [isOpen, setIsOpen] = useState(false);
   const rootRef = useRef(null);
   const hasMultipleLocales = Array.isArray(locales) && locales.length > 1;
@@ -101,39 +101,53 @@ function LocaleSwitcher({ currentLocale, locales, onLocaleChange, onSelect, mobi
     return null;
   }
 
+  const triggerClassName = mobile
+    ? 'w-full justify-between border-white/12 bg-white/5 text-ghost/92'
+    : compact
+      ? 'justify-between border-graphite/10 bg-white/88 text-graphite shadow-[0_14px_30px_rgba(8,8,16,0.08)] hover:border-graphite/20'
+      : 'border-white/12 bg-white/5 text-ghost/92 hover:border-plasma/30';
+  const panelClassName = mobile
+    ? 'left-0 right-0'
+    : compact
+      ? 'right-0 min-w-[15rem] border-[#0a0a14]/8 bg-[rgba(248,248,252,0.96)] text-graphite shadow-[0_22px_70px_rgba(8,8,16,0.16)]'
+      : 'right-0 min-w-[15rem] border-white/10 bg-[#121222]/96 shadow-[0_22px_70px_rgba(5,6,12,0.45)]';
+  const optionBaseClassName = compact && !mobile
+    ? 'text-graphite/88 hover:bg-[#0f1020]/5'
+    : 'text-ghost/88 hover:bg-white/6';
+  const optionSelectedClassName = compact && !mobile
+    ? 'bg-[#0f1020] text-ghost'
+    : 'bg-plasma text-ghost';
+  const optionCodeClassName = compact && !mobile ? 'text-graphite/45' : 'text-mist/55';
+  const chevronClassName = compact && !mobile ? 'text-graphite/55' : 'text-mist/70';
+
   return (
     <div ref={rootRef} className={`relative ${mobile ? 'w-full' : 'shrink-0'}`}>
       <button
         type="button"
         aria-expanded={isOpen}
         aria-label={currentItem.name}
-        className={`flex h-11 items-center gap-2 rounded-full border px-3 text-sm transition duration-300 ease-magnetic ${
-          mobile
-            ? 'w-full justify-between border-white/12 bg-white/5 text-ghost/92'
-            : 'border-white/12 bg-white/5 text-ghost/92 hover:border-plasma/30'
-        }`}
+        className={`flex h-11 items-center gap-2 rounded-full border px-3 text-sm transition duration-300 ease-magnetic ${triggerClassName}`}
         onClick={() => setIsOpen((open) => !open)}
       >
         <FlagAvatar
           localeCode={currentItem.code}
           localeName={currentItem.name}
           size={mobile ? 'md' : 'sm'}
+          compact={compact && !mobile}
         />
         {mobile ? (
           <span className="min-w-0 truncate text-sm font-medium">{currentItem.name}</span>
         ) : null}
         <ChevronDown
           size={16}
-          className={`text-mist/70 transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
+          className={`${chevronClassName} transition-transform duration-300 ${isOpen ? 'rotate-180' : ''}`}
         />
       </button>
 
       <AnimatePresence>
         {isOpen ? (
           <motion.div
-            className={`absolute z-[80] mt-3 overflow-hidden rounded-[1.4rem] border border-white/10 bg-[#121222]/96 shadow-[0_22px_70px_rgba(5,6,12,0.45)] backdrop-blur-xl ${
-              mobile ? 'left-0 right-0' : 'right-0 min-w-[15rem]'
-            }`}
+            className={`absolute z-[80] mt-3 overflow-hidden rounded-[1.4rem] border backdrop-blur-xl ${panelClassName}`}
             initial={{ opacity: 0, y: -10, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: -8, scale: 0.98 }}
@@ -152,14 +166,18 @@ function LocaleSwitcher({ currentLocale, locales, onLocaleChange, onSelect, mobi
                   aria-pressed={item.code === currentLocale}
                   className={`flex w-full items-center gap-3 rounded-[1rem] px-3 py-3 text-left text-sm transition duration-200 ${
                     item.code === currentLocale
-                      ? 'bg-plasma text-ghost'
-                      : 'text-ghost/88 hover:bg-white/6'
+                      ? optionSelectedClassName
+                      : optionBaseClassName
                   }`}
                 >
-                  <FlagAvatar localeCode={item.code} localeName={item.name} />
+                  <FlagAvatar
+                    localeCode={item.code}
+                    localeName={item.name}
+                    compact={compact && !mobile}
+                  />
                   <span className="min-w-0 flex-1 truncate font-medium">{item.name}</span>
                   <span className={`text-[0.68rem] uppercase tracking-[0.2em] ${
-                    item.code === currentLocale ? 'text-ghost/72' : 'text-mist/55'
+                    item.code === currentLocale ? 'text-ghost/72' : optionCodeClassName
                   }`}>
                     {item.code}
                   </span>
@@ -173,14 +191,17 @@ function LocaleSwitcher({ currentLocale, locales, onLocaleChange, onSelect, mobi
   );
 }
 
-function FlagAvatar({ localeCode, localeName, size = 'md', className = '' }) {
+function FlagAvatar({ localeCode, localeName, size = 'md', className = '', compact = false }) {
   const src = getLocaleFlagSrc(localeCode);
   const fallback = getLocaleFlag(localeCode);
   const dimensions = size === 'sm' ? 'h-7 w-7' : 'h-8 w-8';
+  const surfaceClassName = compact
+    ? 'border-[#0a0a14]/10 bg-[#0f1020]/6 shadow-[0_8px_20px_rgba(8,8,16,0.08)]'
+    : 'border-white/12 bg-[#0f1020] shadow-[0_8px_20px_rgba(5,6,12,0.24)]';
 
   return (
     <span
-      className={`relative inline-flex overflow-hidden rounded-full border border-white/12 bg-[#0f1020] shadow-[0_8px_20px_rgba(5,6,12,0.24)] ${dimensions} ${className}`.trim()}
+      className={`relative inline-flex overflow-hidden rounded-full border ${surfaceClassName} ${dimensions} ${className}`.trim()}
       aria-hidden="true"
       title={localeName}
     >
@@ -273,6 +294,7 @@ export default function FloatingNav({ compact, siteName, logoUrl, articlesCount 
             currentLocale={locale}
             locales={locales}
             onLocaleChange={setLocale}
+            compact={compact}
           />
         </div>
         <motion.a
