@@ -5,7 +5,7 @@ const path = require('path');
 const rootDir = path.resolve(__dirname, '..');
 const previewDir = path.join(rootDir, 'site-preview');
 const envFile = path.join(rootDir, '.env');
-const npmCommand = process.platform === 'win32' ? 'npm.cmd' : 'npm';
+const npmCommand = 'npm';
 const strapiBin = path.join(rootDir, 'node_modules', '.bin', 'strapi');
 const viteBin = path.join(previewDir, 'node_modules', '.bin', 'vite');
 const requiredEnvKeys = [
@@ -97,6 +97,7 @@ function startProcess(name, args, cwd) {
   const child = spawn(npmCommand, args, {
     cwd,
     stdio: 'inherit',
+    shell: true,
   });
 
   child.on('error', (error) => {
